@@ -10,8 +10,10 @@
     'depends': ['fel_gt'],
     'data': [
         'views/account_view.xml',
+        'views/pos_templates.xml',    
     ],
     'demo': [],
+    'qweb': ['static/src/xml/custom_button.xml'],
     'installable': True
 }
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
