@@ -13,10 +13,13 @@
        # 'views/pos_templates.xml',    
     ],
     'demo': [],
-    'qweb': ['static/src/xml/custom_button.xml'],
+    #'qweb': ['static/src/xml/custom_button.xml'],
     'assets': {
         'point_of_sale.assets': [
             '/fel_infile/static/src/js/custom.js',
+        ],
+        'web.assets_qweb': [
+            'static/src/xml/custom_button.xml,
         ],
     },
     'installable': True
