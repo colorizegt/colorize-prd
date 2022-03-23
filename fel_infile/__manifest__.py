@@ -10,7 +10,7 @@
     'depends': ['fel_gt','point_of_sale'],
     'data': [
         'views/account_view.xml',
-        'views/pos_templates.xml',    
+        #'views/pos_templates.xml',    
     ],
     'demo': [],
     #'qweb': ['static/src/xml/custom_button.xml'],
@@ -23,6 +23,9 @@
     #    ],}
 
   'assets': {
+    "web.assets_backend": [
+            "fel_infile/static/src/js/custom.js"
+        ],  
     'web.assets_qweb': [
         'fel_infile/static/src/xml/custom_button.xml',
     ],
