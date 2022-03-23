@@ -15,7 +15,7 @@
     'demo': [],
     #'qweb': ['static/src/xml/custom_button.xml'],
     'assets': {
-        'point_of_sale.assets': [
+        'web.assets_common': [
             '/fel_infile/static/src/js/custom.js',
         ],
         'web.assets_qweb': [
