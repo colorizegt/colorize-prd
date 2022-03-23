@@ -14,12 +14,20 @@
     ],
     'demo': [],
     #'qweb': ['static/src/xml/custom_button.xml'],
+
+    ###
+    #'assets': {
+    #    'web.assets_backend' [
+    #        'module_name/static/src/scss/file_name.scss',
+    #        'module_name/static/src/js/file_name.js',
+    #    ],}
+
     'assets': {
         'web.assets_common': [
-            '/fel_infile/static/src/js/custom.js',
+            'fel_infile/static/src/js/custom.js',
         ],
         'web.assets_qweb': [
-            'static/src/xml/custom_button.xml,
+            'fel_infile/static/src/xml/custom_button.xml,
         ],
     },
     'installable': True
