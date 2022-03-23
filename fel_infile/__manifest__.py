@@ -23,9 +23,9 @@
     #    ],}
 
   'assets': {
-    "web.assets_backend": [
-            "fel_infile/static/src/js/custom.js"
-        ],  
+    #"web.assets_backend": [
+    #        "fel_infile/static/src/js/custom.js"
+    #    ],  
     'web.assets_qweb': [
         'fel_infile/static/src/xml/custom_button.xml',
     ],
