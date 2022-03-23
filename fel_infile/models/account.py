@@ -23,6 +23,16 @@ class AccountMove(models.Model):
         if self.certificar():
             return super(AccountMove, self)._post(soft)
 
+    def get_pdf_fel(self, pos_reference):
+        rec_pos = self.env['pos.order'].search([
+            ('pos_reference', '=', pos_reference)
+        ])
+
+
+        rec_account = self.browse(rec_pos[0].account_move.id)
+        
+        return rec_account.pdf_fel
+
     def post(self):
         if self.certificar():
             return super(AccountMove, self).post()
