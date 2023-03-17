@@ -166,7 +166,9 @@ class AccountMove(models.Model):
             Receptor.attrib['NombreReceptor'] = factura.partner_id.nombre_facturacion_fel
         if factura.partner_id.email:
             Receptor.attrib['CorreoReceptor'] = factura.partner_id.email
-        if tipo_documento_fel == "FESP" and factura.partner_id.cui:
+        #if tipo_documento_fel == "FESP" and factura.partner_id.cui:
+        #if (tipo_documento_fel == "FESP" or (tipo_documento_fel == "FACT" and factura.currency_id.round(gran_total)>2500)) and factura.partner_id.cui:
+        if (tipo_documento_fel == "FESP" or tipo_documento_fel == "FACT") and factura.partner_id.cui:    
             Receptor.attrib['TipoEspecial'] = "CUI"
 
         DireccionReceptor = etree.SubElement(Receptor, DTE_NS+"DireccionReceptor")
@@ -181,18 +183,30 @@ class AccountMove(models.Model):
         Pais = etree.SubElement(DireccionReceptor, DTE_NS+"Pais")
         Pais.text = factura.partner_id.country_id.code or 'GT'
 
-        if tipo_documento_fel not in ['RECI', 'NABN', 'FESP']:
+        if tipo_documento_fel not in ['NDEB', 'NCRE', 'RECI', 'NABN', 'FESP']:
             ElementoFrases = etree.fromstring(factura.company_id.frases_fel)
             DatosEmision.append(ElementoFrases)
 
+         # Modificación 26/09/2022, SV
+        if tipo_documento_fel in ['FESP']:
+            ElementoFrases = etree.fromstring("<dte:Frases xmlns:dte=\"http://www.sat.gob.gt/dte/fel/0.2.0\"><dte:Frase CodigoEscenario=\"1\" TipoFrase=\"5\"></dte:Frase></dte:Frases>")
+            DatosEmision.append(ElementoFrases)
+         # Fin deModificación 26/09/2022, SV
+        
         Items = etree.SubElement(DatosEmision, DTE_NS+"Items")
 
         linea_num = 0
         gran_subtotal = 0
         gran_total = 0
         gran_total_impuestos = 0
+        gran_total_impuestos1 = 0
         cantidad_impuestos = 0
         self.descuento_lineas()
+        
+        gran_total_fesp = 0
+        gran_subtotal_fesp = 0
+        gran_total_impuestos_fesp = 0
+        
         
         for linea in factura.invoice_line_ids:
 
@@ -211,6 +225,10 @@ class AccountMove(models.Model):
             total_linea = precio_unitario * linea.quantity
             total_linea_base = precio_unitario_base * linea.quantity
             total_impuestos = total_linea - total_linea_base
+            # Modificación 01/09/2022, SV
+            if total_impuestos < 0:
+                total_impuestos = 0
+            # Fin Modificación 01/09/2022, SV
             cantidad_impuestos += len(linea.tax_ids)
 
             Item = etree.SubElement(Items, DTE_NS+"Item", BienOServicio=tipo_producto, NumeroLinea=str(linea_num))
@@ -241,16 +259,41 @@ class AccountMove(models.Model):
             Total = etree.SubElement(Item, DTE_NS+"Total")
             Total.text = '{:.3f}'.format(total_linea)
 
-            gran_total += factura.currency_id.round(total_linea)
-            gran_subtotal += factura.currency_id.round(total_linea_base)
-            gran_total_impuestos += factura.currency_id.round(total_impuestos)
-
+            
+            # Modificación 09/11/2022, SV
+            #gran_total += factura.currency_id.round(total_linea)
+            #gran_subtotal += factura.currency_id.round(total_linea_base)
+            #gran_total_impuestos += factura.currency_id.round(total_impuestos)
+            gran_total += total_linea
+            gran_subtotal += total_linea_base
+            gran_total_impuestos += total_impuestos
+            # Fin Modificación 09/11/2022, VHEM
+            
+            gran_total_fesp += total_linea
+            gran_subtotal_fesp += total_linea_base
+            gran_total_impuestos_fesp += total_impuestos
+            
+        # Modificación 01/09/2022, VHEM
+        if gran_total_impuestos < 0:    
+            gran_total_impuestos = 0
+        # Fin Modificación 01/09/2022, VHEM
+        if tipo_documento_fel in ['FESP']:
+            gran_total = gran_total_fesp
+            gran_subtotal = gran_subtotal_fesp
+            gran_total_impuestos = gran_total_impuestos_fesp
+            
         Totales = etree.SubElement(DatosEmision, DTE_NS+"Totales")
         TotalImpuestos = etree.SubElement(Totales, DTE_NS+"TotalImpuestos")
-        TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="IVA", TotalMontoImpuesto='{:.3f}'.format(factura.currency_id.round(gran_total_impuestos)))
+        # Modificación 09/11/2022, SV
+        #TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="IVA", TotalMontoImpuesto='{:.3f}'.format(factura.currency_id.round(gran_total_impuestos)))
+        TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="IVA", TotalMontoImpuesto='{:.6f}'.format(factura.currency_id.round(gran_total_impuestos)))
+        # Fin Modificación 09/11/2022, SV
+        
+        # Modificación 09/11/2022, VHEM
         GranTotal = etree.SubElement(Totales, DTE_NS+"GranTotal")
-        GranTotal.text = '{:.3f}'.format(factura.currency_id.round(gran_total))
-
+        #GranTotal.text = '{:.3f}'.format(factura.currency_id.round(gran_total))
+        GranTotal.text = '{:.6f}'.format(factura.currency_id.round(gran_total))
+        
         if DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases") and factura.currency_id.is_zero(gran_total_impuestos) and (factura.company_id.afiliacion_iva_fel or 'GEN') == 'GEN':
             Frase = etree.SubElement(DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases"), DTE_NS+"Frase", CodigoEscenario=str(factura.frase_exento_fel) if factura.frase_exento_fel else "1", TipoFrase="4")
 
@@ -278,8 +321,10 @@ class AccountMove(models.Model):
                 FechaVencimiento = etree.SubElement(Abono, CFC_NS+"FechaVencimiento")
                 FechaVencimiento.text = str(factura.invoice_date_due)
                 MontoAbono = etree.SubElement(Abono, CFC_NS+"MontoAbono")
-                MontoAbono.text = '{:.3f}'.format(gran_total)
-
+                # Modificación 09/11/2022, VHEM
+                #MontoAbono.text = '{:.3f}'.format(gran_total)
+                MontoAbono.text = '{:.6f}'.format(gran_total)
+                
             if tipo_documento_fel in ['FACT', 'FCAM'] and factura.tipo_gasto == 'importacion':
                 Complemento = etree.SubElement(Complementos, DTE_NS+"Complemento", IDComplemento="text", NombreComplemento="text", URIComplemento="http://www.sat.gob.gt/face2/ComplementoExportaciones/0.1.0")
                 Exportacion = etree.SubElement(Complemento, CEX_NS+"Exportacion", Version="1", nsmap=NSMAP_EXP)
@@ -303,22 +348,40 @@ class AccountMove(models.Model):
                 CodigoExportador.text = factura.exportador_fel.ref or "-" if factura.exportador_fel else "-"
 
             if tipo_documento_fel in ['FESP']:
-                total_isr = abs(factura.amount_tax)
-
+                # Modificación 11/10/2022, SV
+                #total_isr = abs(factura.amount_tax) # Modificación 12/10/2022, SV para calcularlo restando GranTotal - total_iva_retencion - factura.amount_total #
+                # Fin Modificación 11/10/2022, SV
+                
                 total_iva_retencion = 0
-                for impuesto in factura.amount_by_group:
-                    if impuesto[1] > 0:
-                        total_iva_retencion += impuesto[1]
+                total_iva_retencion = abs(gran_total_impuestos) #- total_isr
+                
+                # Modificación 12/10/2022, SV, 09/11/2022 SV
+                #total_isr = abs(gran_total) - total_iva_retencion - abs(factura.amount_total)
+                total_sin_iva = abs(gran_total) - total_iva_retencion
+                total_isr = (total_sin_iva)*0.05
+                if  total_sin_iva > 30000:
+                    total_isr = 1500 + ((total_sin_iva-30000)*0.07)
+                # Fin Modificación 12/10/2022, SV
+                
+                #for impuesto in factura.amount_by_group:
+                #    if impuesto[1] > 0:
+                #        total_iva_retencion += impuesto[1]
 
                 Complemento = etree.SubElement(Complementos, DTE_NS+"Complemento", IDComplemento="FacturaEspecial", NombreComplemento="FacturaEspecial", URIComplemento="http://www.sat.gob.gt/face2/ComplementoFacturaEspecial/0.1.0")
                 RetencionesFacturaEspecial = etree.SubElement(Complemento, CFE_NS+"RetencionesFacturaEspecial", Version="1", nsmap=NSMAP_FE)
+                
+                # Modificación 11/10/2022, SV
                 RetencionISR = etree.SubElement(RetencionesFacturaEspecial, CFE_NS+"RetencionISR")
-                RetencionISR.text = str(total_isr)
+                RetencionISR.text = '{:.6f}'.format(total_isr)
+                # Fin dem odificación 11/10/2022, SV
+                
                 RetencionIVA = etree.SubElement(RetencionesFacturaEspecial, CFE_NS+"RetencionIVA")
-                RetencionIVA.text = str(total_iva_retencion)
+                RetencionIVA.text = '{:.6f}'.format(total_iva_retencion)
+                
                 TotalMenosRetenciones = etree.SubElement(RetencionesFacturaEspecial, CFE_NS+"TotalMenosRetenciones")
-                TotalMenosRetenciones.text = str(factura.amount_total)
-
+                #TotalMenosRetenciones.text = '{:.6f}'.format(factura.amount_total)
+                TotalMenosRetenciones.text = '{:.6f}'.format(abs(gran_total) - total_iva_retencion - total_isr)
+                
         # signature = xmlsig.template.create(
         #     xmlsig.constants.TransformInclC14N,
         #     xmlsig.constants.TransformRsaSha256,
