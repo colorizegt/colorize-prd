@@ -4,6 +4,7 @@ from odoo import api, fields, models, tools, SUPERUSER_ID
 
 class L10nGtExtraImpuestos(models.Model):
     _name = "l10n_gt_extra.impuestos"
+    _description = "Impuestos GT"
     _rec_name = "nombre"
 
     nombre = fields.Char('Nombre')
@@ -13,6 +14,7 @@ class L10nGtExtraImpuestos(models.Model):
 
 class L10nGtExtraImpuestosRangos(models.Model):
     _name = "l10n_gt_extra.impuestos.rangos"
+    _description = "Rangos de Impuestos GT"
 
     rango_inicial = fields.Float('Rango inicial')
     rango_final = fields.Float('Rango final')

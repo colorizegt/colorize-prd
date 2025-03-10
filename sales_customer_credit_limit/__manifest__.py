@@ -30,9 +30,9 @@
                             ],
   "data"                 :  [
                              'security/ir.model.access.csv',
-                             'views/res_partner_views.xml',
-                             'views/sale_views.xml',
-                             'wizards/credit_limit_exceed_wizard.xml',
+                             #'views/res_partner_views.xml',
+                             #'views/sale_views.xml',
+                             #'wizards/credit_limit_exceed_wizard.xml',
                             ],
   "images"               :  ['static/description/Banner.png'],
   "application"          :  True,

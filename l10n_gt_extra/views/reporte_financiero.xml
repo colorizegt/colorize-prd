@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="reporte_financiero">
+        <t t-call="web.html_container">
+            <t t-set="data_report_margin_top" t-value="50"/>
+            <t t-set="data_report_header_spacing" t-value="45"/>
+            <t t-set="data_report_page_offset" t-value="data['folio_inicial']-1"/>
+            <div class="header">
+                <div class="row" style="font-size: 14px !important;">
+                    <div class="col-2">
+                        <div class="text-right">
+                            <div>
+                                <strong>Nombre Fiscal:</strong>
+                            </div>
+                            <div>
+                                <strong>NIT:</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-left">
+                            <div class="ml-3 pl-3">
+                                <span t-esc="company_id.name"/>
+                            </div>
+                            <div class="ml-3 pl-3">
+                                <div t-if="company_id.vat != False">
+                                    <span t-esc="company_id.vat"/>
+                                </div>
+                                <div t-if="company_id.vat == False">
+                                    -----
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="text-right">
+                            <div>
+                                <strong>Folio:</strong>
+                            </div>
+                            <div>
+                                <strong>Ejercicio:</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <t t-set="folio_inicial" t-value="data['folio_inicial']-1"/>
+                        <div class="text-left">
+                            <script>
+                                function subst() {
+                                    var fo = '<t t-esc="folio_inicial"/>';
+                                    var folio = parseInt(fo)
+                                    var vars = {};
+                                    var x = document.location.search.substring(1).split('&amp;');
+                                    for (var i in x) {
+                                        var z = x[i].split('=', 2);
+                                        vars[z[0]] = unescape(z[1]);
+                                    }
+                                    var x = ['sitepage', 'sitepages', 'section', 'subsection', 'subsubsection'];
+                                    var z = {'sitepage': 'page', 'sitepages': 'topage'};
+                                    for (var i in x) {
+                                        var y = document.getElementsByClassName(z[x[i]] || x[i])
+                                        for (var j=0; j&lt;y.length; ++j)
+                                            y[j].textContent = parseInt(vars[x[i]]) + folio;
+                                    }
+
+                                    var index = vars['webpage'].split('.', 4)[3];
+                                    var header = document.getElementById('minimal_layout_report_headers');
+                                    if(header !== null){
+                                        var companyHeader = header.children[index];
+                                        header.textContent = '';
+                                        header.appendChild(companyHeader);
+                                    }
+                                    var footer = document.getElementById('minimal_layout_report_footers');
+                                    if(footer !== null){
+                                        var companyFooter = footer.children[index];
+                                        footer.textContent = '';
+                                        footer.appendChild(companyFooter);
+                                    }
+                                }
+                            </script>
+                            <div>
+                                <span class="page"/>
+                            </div>
+                            <div>
+                                <span t-esc="data['start_year']"/>-<span t-esc="data['end_year']"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div align="center" style="width: 100%">
+                    <br/>
+                    <strong>LIBRO DE ESTADOS FINANCIEROS</strong><br/>
+                    <t t-if="data['report_type'] == 'result'">
+                        <strong>ESTADO DE RESULTADOS</strong><br/>
+                    </t>
+                    <t t-else="">
+                        <strong>BALANCE GENERAL</strong><br/>
+                    </t>
+                    <t t-if="data['report_type'] == 'result'">
+                        <strong>Periodo del: <span t-esc="data['start_date']" t-field-options="{'widget':'date'}"/> Al <span t-esc="data['end_date']" t-field-options="{'widget':'date'}"/></strong><br/>
+                    </t>
+                    <t t-else="">
+                        <strong>Periodo al: <span t-esc="data['end_date']" t-field-options="{'widget':'date'}"/></strong><br/>
+                    </t>
+                    <strong>Cifras expresadas en Quetzales (Q)</strong><br/>
+                </div>
+            </div>
+
+            <t t-call="web.external_layout">
+                <div class="page" style="font-family:'Lucida Sans Unicode', 'Lucida Grande', sans-serif">
+                    <t t-set="result" t-value="sections(data)"/>
+                    <t t-foreach="result['sections']" t-as="section">
+                        <center>
+                            <t t-if="section['section_header']">
+                                <div style="width: 100%" class="container">
+                                    <strong><u><span style="text-transform: uppercase;" t-esc="section['section_header']"/></u></strong>
+                                </div>
+                            </t>
+                            <table class="table table-sm table-borderless" style="font-size: 14px !important; width: 80%; border: 0; margin: 4px !important;">
+                                <thead style="border: 0;">
+                                    <tr>
+                                        <t t-if="result['report_info']['column_numbers'] == '3'">
+                                            <th style="width:40%;" class="text-start"><strong><u><span style="text-transform: uppercase;" t-esc="section['section_name']"/></u></strong></th>
+                                            <th style="width:20%;"></th>
+                                            <th style="width:20%;"></th>
+                                            <th style="width:20%;"></th>
+                                        </t>
+                                        <t t-else="">
+                                            <th style="width:50%;" class="text-start"><strong><u><span style="text-transform: uppercase;" t-esc="section['section_name']"/></u></strong></th>
+                                            <th style="width:25%;"></th>
+                                            <th style="width:25%;"></th>
+                                        </t>
+                                    </tr>
+                                </thead>
+                                <tbody style="border: 0;">
+                                    <tr t-foreach="section['section_childs']" t-as="l">
+                                        <td class="text-start">
+                                            <span t-esc="l['name']"/>
+                                        </td>
+                                        <t t-if="result['report_info']['column_numbers'] == '3'">
+                                            <td class="text-end">
+                                                <t t-if="l['first_column'] > 0">
+                                                    <span t-esc="'Q {:,.2f}'.format(l['first_column'])"/>
+                                                </t>
+                                            </td>
+                                        </t>
+                                        <td class="text-end">
+                                            <t t-if="l['second_column'] > 0">
+                                                <span t-esc="'Q {:,.2f}'.format(l['second_column'])"/>
+                                            </t>
+                                        </td>
+                                        <td class="text-end">
+                                            <t t-if="l['total_column'] > 0">
+                                                <span t-esc="'Q {:,.2f}'.format(l['total_column'])"/>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot style="border: 0;">
+                                    <t t-if="section['not_show_totals'] == False">
+                                        <tr>
+                                            <th class="text-start"><strong><span style="text-transform: uppercase;" t-esc="section['total_name']"/></strong></th>
+                                            <t t-if="result['report_info']['column_numbers'] == '3'"><th></th></t>
+                                            <th></th>
+                                            <th class="text-end"><span style="border-top-style: solid; border-top-width: 1px;" t-esc="'Q {:,.2f}'.format(section['total_column'])"/></th>
+                                        </tr>
+                                    </t>
+                                </tfoot>
+                            </table>
+                        </center>
+                    </t>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <div style="width:100%;text-align: center;margin-right: auto;margin-left: auto;font-size: 11px !important;" class="container">
+                        <div style="width:40%;float:left;">
+                            F_______________________________<br/>
+                            <span t-esc="result['report_info']['legal_representative_name']" style="text-transform: uppercase;"/><br/>
+                            Representante Legal<br/>
+                        </div>
+                        <div style="width:40%;float:right;">
+                            F_______________________________<br/>
+                            <span t-esc="result['report_info']['accountant_name']" style="text-transform: uppercase;"/><br/>
+                            Contador<br/>
+                        </div>
+                    </div>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <div style="width:100%;text-align: justify;font-size: 10px !important;" class="container">
+                        <span t-esc="result['report_info']['footer_phrase']"/><br/>
+                    </div>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <div style="width:100%;text-align: center;margin-right: auto;margin-left: auto;font-size: 11px !important;" class="container">
+                        <div style="width:40%;float:left;">
+                        </div>
+                        <div style="width:40%;float:right;">
+                            F_______________________________<br/>
+                            <span t-esc="result['report_info']['accountant_name']" style="text-transform: uppercase;"/><br/>
+                            Contador<br/>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="footer"/>
+            </t>
+        </t>
+    </template>
+
+</odoo>

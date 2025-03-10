@@ -1,88 +1,95 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
+#################################################################################
+# Author      : Rodrigo Contreras (<mrdc.tech>)
+# Copyright(c): 2024
+# All Rights Reserved.
+#
+# This module is copyright property of the author mentioned above.
+# You can`t redistribute it and/or modify it.
+#
+#################################################################################
 
+from typing import ValuesView
 from odoo import api, models
-from odoo.exceptions import UserError
 import logging
+from odoo.exceptions import ValidationError
+import math
+import pandas as pd
 
 class ReporteVentas(models.AbstractModel):
     _name = 'report.l10n_gt_extra.reporte_ventas'
+    _description = 'Report Ventas'
 
     def lineas(self, datos):
         totales = {}
 
         totales['num_facturas'] = 0
-        totales['compra'] = {'exento':0,'neto':0,'iva':0,'total':0}
-        totales['servicio'] = {'exento':0,'neto':0,'iva':0,'total':0}
-        totales['importacion'] = {'exento':0,'neto':0,'iva':0,'total':0}
-        totales['combustible'] = {'exento':0,'neto':0,'iva':0,'total':0}
-        
-        journal_ids = [x for x in datos['diarios_id']]
-        filtro = [
-            ('state','in',['posted','cancel']),
-            ('journal_id','in',journal_ids),
-            ('date','<=',datos['fecha_hasta']),
-            ('date','>=',datos['fecha_desde']),
-        ]
-        
-        if 'type' in self.env['account.move'].fields_get():
-            filtro.append(('type','in',['out_invoice','out_refund']))
-        else:
-            filtro.append(('move_type','in',['out_invoice','out_refund']))
+        totales['compra'] = {'exento': 0, 'neto': 0, 'iva': 0, 'total': 0}
+        totales['servicio'] = {'exento': 0, 'neto': 0, 'iva': 0, 'total': 0}
+        totales['importacion'] = {'exento': 0, 'neto': 0, 'iva': 0, 'total': 0}
+        totales['combustible'] = {'exento': 0, 'neto': 0, 'iva': 0, 'total': 0}
+        totales['venta_neta'] = 0
+        totales['extentos'] = 0
+        totales['extension_iva'] = {'cant': 0, 'total':0}
+        totales['retencion_iva'] = {'cant': 0, 'total':0}
 
-        facturas = self.env['account.move'].search(filtro)
-        impuesto = self.env['account.tax'].browse(datos['impuesto_id'][0])
+        journal_ids = [x for x in datos['diarios_id']]
+        facturas = self.env['account.move'].search([
+            ('state', 'in', ['draft', 'posted', 'cancel']),
+            ('journal_id', 'in', journal_ids),
+            ('invoice_date', '<=', datos['fecha_hasta']),
+            ('invoice_date', '>=', datos['fecha_desde']),
+            ('move_type', 'in', ['out_invoice', 'out_refund']),
+        ], order='invoice_date, name')
 
         lineas = []
+
         for f in facturas:
+            cliente = f.partner_id.name
+            nit = f.partner_id.vat
+
             totales['num_facturas'] += 1
 
             tipo_cambio = 1
             if f.currency_id.id != f.company_id.currency_id.id:
-                # Probar con impuesto inicialmente
-                for l in f.invoice_line_ids:
-                    if impuesto in l.tax_ids:
-                        if l.amount_currency != 0:
-                            tipo_cambio = l.balance/l.amount_currency
-                
-                # Si la factura no tiene impuesto, entonces usar cuenta por cobrar/pagar
-                if tipo_cambio == 1:
-                    total = 0
-                    for l in f.line_ids:
-                        if l.account_id.reconcile:
-                            total += l.debit - l.credit
-                    if f.amount_total != 0:
-                        tipo_cambio = abs(total / f.amount_total)
+                if 'conversion_rate_ref' in self.env['account.move']._fields:
+                    if f.conversion_rate_ref > 0:
+                        tipo_cambio = f.conversion_rate_ref
+                else:
+                    tipo_cambio = f.currency_id.with_context(date=f.invoice_date).rate
 
             tipo = 'FACT'
-            tipo_interno_factura = f.type if 'type' in f.fields_get() else f.move_type
-            if tipo_interno_factura != 'out_invoice':
-                tipo = 'NC'
-            if f.nota_debito:
-                tipo = 'ND'
+            signo = 1
+            if f.move_type == 'out_refund':
+                if f.amount_untaxed >= 0:
+                    tipo = 'NC'
+                    signo = -1
+                else:
+                    tipo = 'ND'
+            if f.journal_id.is_receipt_journal == True:
+                tipo = 'REC'
 
-            numero = f.name or '-'
+            numero = f.name
+            if self.env.company.sale_report_invoice_number_field:
+                numero = f[self.env.company.sale_report_invoice_number_field.name]
+            
+            serie = f.name
+            if self.env.company.sale_report_invoice_serie_field:
+                serie = f[self.env.company.sale_report_invoice_serie_field.name]
 
-            # Por si es un diario de rango de facturas
-            if f.journal_id.facturas_por_rangos or f.journal_id.usar_referencia:
-                numero = f.ref
-
-            # Por si usa factura electrónica
-            if 'firma_gface' in f.fields_get() and f.firma_gface:
-                numero = str(f.ref)
-            if 'firma_fel' in f.fields_get() and f.firma_fel:
-                numero = str(f.serie_fel) + '-' + str(f.numero_fel)
-
-            # Por si usa tickets
-            if 'requiere_resolucion' in f.journal_id.fields_get() and f.journal_id.requiere_resolucion:
-                numero = f.ref
+            if f.state == 'cancel':
+                cliente = 'ANULADA'
+                nit = ''
 
             linea = {
+                'establecimiento': f.journal_id[self.env.company.sale_report_establishment_field.name] if f.journal_id[self.env.company.sale_report_establishment_field.name] else 1,
                 'estado': f.state,
                 'tipo': tipo,
-                'fecha': f.date,
-                'numero': numero,
-                'cliente': f.partner_id.name,
-                'nit': f.partner_id.vat,
+                'serie': serie if serie else f.name,
+                'fecha': f.invoice_date,
+                'numero': numero if numero else f.name,
+                'cliente': cliente,
+                'nit': nit,
                 'compra': 0,
                 'compra_exento': 0,
                 'servicio': 0,
@@ -91,59 +98,88 @@ class ReporteVentas(models.AbstractModel):
                 'combustible_exento': 0,
                 'importacion': 0,
                 'importacion_exento': 0,
+                'total_extento': 0,
                 'base': 0,
                 'iva': 0,
                 'total': 0
             }
 
             if f.state == 'cancel':
-                linea['numero'] = f.name
                 lineas.append(linea)
                 continue
 
+            for l in f.line_ids:
+                if l.account_id.id == self.env.company.iva_forgiveness_account_id.id:
+                    totales['extension_iva']['cant'] += 1
+                    totales['extension_iva']['total'] += l.debit
+
+                if l.account_id.id == self.env.company.iva_sales_account_id.id:
+                    totales['retencion_iva']['cant'] += 1
+                    totales['retencion_iva']['total'] += l.debit
+
+            signo = 1
             for l in f.invoice_line_ids:
-                precio = ( l.price_unit * (1-(l.discount or 0.0)/100.0) ) * tipo_cambio
+                precio = (l.price_unit * (1-(l.discount or 0.0)/100.0))
                 if tipo == 'NC':
                     precio = precio * -1
+                    signo = -1
 
-                tipo_linea = f.tipo_gasto or 'mixto'
-                if tipo_linea == 'mixto':
-                    if l.product_id.type != 'service':
-                        tipo_linea = 'compra'
-                    else:
-                        tipo_linea = 'servicio'
+                tipo_linea = f.tipo_gasto
+                if l.product_id.product_tmpl_id.type == 'service':
+                    tipo_linea = 'servicio'
+                else:
+                    tipo_linea = 'compra'
 
-                r = l.tax_ids.compute_all(precio, currency=f.currency_id, quantity=l.quantity, product=l.product_id, partner=f.partner_id)
-
-                linea['base'] += r['total_excluded']
-                totales[tipo_linea]['total'] += r['total_excluded']
+                r = l.tax_ids._origin.compute_all(precio, currency=f.currency_id, quantity=l.quantity, product=l.product_id, partner=f.partner_id)
+                base_price = (l.price_subtotal  * signo)  * tipo_cambio
+                linea['base'] += base_price
+                totales[tipo_linea]['total'] += base_price
+                totales['venta_neta'] += base_price
                 if len(l.tax_ids) > 0:
-                    linea[tipo_linea] += r['total_excluded']
-                    totales[tipo_linea]['neto'] += r['total_excluded']
+                    linea[tipo_linea] += base_price
+                    totales[tipo_linea]['neto'] += base_price
                     for i in r['taxes']:
                         if i['id'] == datos['impuesto_id'][0]:
-                            linea['iva'] += i['amount']
-                            totales[tipo_linea]['iva'] += i['amount']
-                            totales[tipo_linea]['total'] += i['amount']
+                            if f.currency_id.id == f.company_id.currency_id.id:
+                                linea['iva'] += i['amount']
+                                totales[tipo_linea]['iva'] += i['amount']
+                                totales[tipo_linea]['total'] += i['amount']
+                            else:
+                                amount = (precio * l.quantity * tipo_cambio) - base_price
+                                linea['iva'] += amount
+                                totales[tipo_linea]['iva'] += amount
+                                totales[tipo_linea]['total'] += amount
                         elif i['amount'] > 0:
                             linea[tipo_linea+'_exento'] += i['amount']
                             totales[tipo_linea]['exento'] += i['amount']
+                            totales['extentos'] += i['amount']
                 else:
-                    linea[tipo_linea+'_exento'] += r['total_excluded']
-                    totales[tipo_linea]['exento'] += r['total_excluded']
+                    linea[tipo_linea+'_exento'] += base_price
+                    linea['total_extento'] += base_price
+                    totales[tipo_linea]['exento'] += base_price
+                    totales['extentos'] += base_price
+                if f.currency_id.id != f.company_id.currency_id.id:
+                    invoice_currency_total = round(precio * l.quantity * tipo_cambio, 2)
+                    diff_totals = abs(round(invoice_currency_total - f.amount_total_signed, 5))
+                    linea['total'] += round(precio * l.quantity * tipo_cambio, 2) + diff_totals
+                else:
+                    linea['total'] += round(precio * l.quantity * tipo_cambio, 2)
 
-                linea['total'] += precio * l.quantity
 
             lineas.append(linea)
 
-        lineas = sorted(lineas, key = lambda i: str(i['fecha']) + str(i['numero']))
+        lineas = sorted(lineas, key=lambda l: l['establecimiento'])
+
+        totals_establishments = pd.DataFrame.from_dict(lineas).groupby(['establecimiento']).sum(numeric_only=True)
+        totals_establishments_list = totals_establishments.to_dict('index')
 
         if datos['resumido']:
             lineas_resumidas = {}
             for l in lineas:
-                llave = l['tipo']+str(l['fecha'])
+                llave = str(l['establecimiento'][0])+l['tipo']+str(l['fecha'])
                 if llave not in lineas_resumidas:
                     lineas_resumidas[llave] = dict(l)
+                    lineas_resumidas[llave]['establecimiento'] = [l['establecimiento'][0]]
                     lineas_resumidas[llave]['estado'] = 'open'
                     lineas_resumidas[llave]['cliente'] = 'Varios'
                     lineas_resumidas[llave]['nit'] = 'Varios'
@@ -164,21 +200,28 @@ class ReporteVentas(models.AbstractModel):
 
             for l in lineas_resumidas.values():
                 facturas = sorted(l['facturas'])
-                l['numero'] = str(l['facturas'][0]) + ' al ' + str(l['facturas'][-1])
+                l['numero'] = l['facturas'][0] + ' al ' + l['facturas'][-1]
 
-            lineas = sorted(lineas_resumidas.values(), key=lambda l: l['tipo']+str(l['fecha']))
-
-        return { 'lineas': lineas, 'totales': totales }
+            lineas = sorted(lineas_resumidas.values(), key=lambda l: str(l['establecimiento'][0])+l['tipo']+str(l['fecha']))
+        return {'lineas': lineas, 'totales': totales, 'totals_establishments': totals_establishments_list, 'resumido': datos['resumido']}
 
     @api.model
     def _get_report_values(self, docids, data=None):
+        return self.get_report_values(docids, data)
+
+    @api.model
+    def get_report_values(self, docids, data=None):
         model = self.env.context.get('active_model')
         docs = self.env[model].browse(self.env.context.get('active_ids', []))
 
-        if len(data['form']['diarios_id']) == 0:
-            raise UserError("Por favor ingrese al menos un diario.")
-
         diario = self.env['account.journal'].browse(data['form']['diarios_id'][0])
+
+        for data_company in diario:
+            company_name = data_company.company_id.name
+            company_registry = data_company.company_id.company_registry
+            company_street = data_company.company_id.street
+            company_vat = data_company.company_id.vat
+            company_logo = data_company.company_id.logo
 
         return {
             'doc_ids': self.ids,
@@ -186,8 +229,9 @@ class ReporteVentas(models.AbstractModel):
             'data': data['form'],
             'docs': docs,
             'lineas': self.lineas,
-            'direccion_diario': diario.direccion and diario.direccion.street,
-            'current_company_id': self.env.company,
+            'company_id': self.env.company
         }
 
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+def truncate(number, digits) -> float:
+    stepper = 10.0 ** digits
+    return math.trunc(stepper * number) / stepper

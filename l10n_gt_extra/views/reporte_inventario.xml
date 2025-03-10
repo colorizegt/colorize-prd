@@ -3,121 +3,126 @@
 
     <template id="reporte_inventario">
         <t t-call="web.html_container">
-            <t t-set="data_report_margin_top" t-value="20"/>
-            <t t-set="data_report_header_spacing" t-value="10"/>
+            <t t-set="data_report_margin_top" t-value="50"/>
+            <t t-set="data_report_header_spacing" t-value="45"/>
+            <t t-set="data_report_page_offset" t-value="data['folio_inicial']-1"/>
             <div class="header">
-                Folio: <span class="page" t-esc="data['folio_inicial']-1"></span>
-            </div>
-            <t t-call="web.external_layout">
-                <div class="page">
-                    <h2><span t-esc="current_company_id.name"/>: Libro Inventario</h2>
-
-                    <t t-set="fecha_desde" t-value="fecha_desde()"/>
-                    <div class="row mt32">
-                        <div class="col-xs-4">
-                            <strong>Número de identificación tributaria:</strong> <span t-field="current_company_id.vat"/><br/>
-                            <strong>Nombre comercial:</strong> <span t-field="current_company_id.partner_id.name"/><br/>
-                        </div>
-                        <div class="col-xs-4">
-                            <strong>Domicilio fiscal:</strong> <span t-field="current_company_id.partner_id.street"/><br/>
-                            <strong>Registro del:</strong> <span t-esc="fecha_desde" t-options='{"widget": "date"}'/> al: <span t-esc="data['fecha_hasta']" t-options='{"widget": "date"}'/><br/>
+                <div class="row" style="font-size: 12px !important;">
+                    <div class="col-2">
+                        <div class="text-right">
+                            <div>
+                                <strong>Nombre Fiscal:</strong>
+                            </div>
+                            <div>
+                                <strong>NIT:</strong>
+                            </div>
                         </div>
                     </div>
+                    <div class="col-6">
+                        <div class="text-left">
+                            <div class="ml-3 pl-3">
+                                <span t-esc="company_id.name"/>
+                            </div>
+                            <div class="ml-3 pl-3">
+                                <div t-if="company_id.vat != False">
+                                    <span t-esc="company_id.vat"/>
+                                </div>
+                                <div t-if="company_id.vat == False">
+                                    -----
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="text-end">
+                            <div>
+                                <strong>Folio:</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <t t-set="folio_inicial" t-value="data['folio_inicial']-1"/>
+                        <div class="text-left">
+                            <script>
+                                function subst() {
+                                    var fo = '<t t-esc="folio_inicial"/>';
+                                    var folio = parseInt(fo)
+                                    var vars = {};
+                                    var x = document.location.search.substring(1).split('&amp;');
+                                    for (var i in x) {
+                                        var z = x[i].split('=', 2);
+                                        vars[z[0]] = unescape(z[1]);
+                                    }
+                                    var x = ['sitepage', 'sitepages', 'section', 'subsection', 'subsubsection'];
+                                    var z = {'sitepage': 'page', 'sitepages': 'topage'};
+                                    for (var i in x) {
+                                        var y = document.getElementsByClassName(z[x[i]] || x[i])
+                                        for (var j=0; j&lt;y.length; ++j)
+                                            y[j].textContent = parseInt(vars[x[i]]) + folio;
+                                    }
 
+                                    var index = vars['webpage'].split('.', 4)[3];
+                                    var header = document.getElementById('minimal_layout_report_headers');
+                                    if(header !== null){
+                                        var companyHeader = header.children[index];
+                                        header.textContent = '';
+                                        header.appendChild(companyHeader);
+                                    }
+                                    var footer = document.getElementById('minimal_layout_report_footers');
+                                    if(footer !== null){
+                                        var companyFooter = footer.children[index];
+                                        footer.textContent = '';
+                                        footer.appendChild(companyFooter);
+                                    }
+                                }
+                            </script>
+                            <div>
+                                <span class="page"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div align="center" style="width: 100%">
+                    <h3><strong>LIBRO DE INVENTARIO</strong></h3><br/>
+                    <strong>Cifras expresadas en Quetzales (Q)</strong><br/>
+                    <strong>Al: <span t-esc="data['fecha_hasta']" t-options="{&quot;widget&quot;: &quot;date&quot;}"/></strong><br/>
+                </div>
+
+            </div>
+
+            <t t-call="web.external_layout">
+                <div class="page" style="font-family:'Lucida Sans Unicode', 'Lucida Grande', sans-serif">
                     <t t-set="result" t-value="lineas(data)"/>
-                    <t t-set="total_activo" t-value="0"/>
-                    <t t-set="total_pasivo" t-value="0"/>
-                    <t t-set="total_capital" t-value="0"/>
-
-                    <table class="table table-condensed">
+                    <table class="table table-condensed" style="font-size: 9px !important; width: 100%;">
+                        <thead>
+                            <tr style="border: 1px solid #000">
+                                <th style="border-left: 1px solid #000">Código</th>
+                                <th style="border-left: 1px solid #000">Cuenta</th>
+                                <th style="border-left: 1px solid #000">Saldo</th>
+                            </tr>
+                        </thead>
                         <tbody>
-                            <thead>
-                                <tr>
-                                    <td><b>ACTIVO</b></td>
-                                    <td colspan="2"></td>
-                                </tr>
-                            </thead>
-                            <tr>
-                                <th>Codigo</th>
-                                <th>Cuenta</th>
-                                <th class="text-right">Saldo</th>
-                            </tr>
-                            <tr t-foreach="result['lineas']['activo']" t-as="activo">
-                                <td>
-                                    <span t-esc="activo['codigo']"/>
+                            <tr t-foreach="result['lineas']" t-as="l" style=" border: 1px solid #000;line-height:0;">
+                                <td style="border: 1px solid #000;">
+                                    <span t-esc="l['codigo']"/>
                                 </td>
-                                <td>
-                                    <span t-esc="activo['cuenta']"/>
+                                <td style="border: 1px solid #000;">
+                                    <span t-esc="l['cuenta']"/>
                                 </td>
-                                <td class="text-right">
-                                    <span t-esc="activo['saldo_final']" t-options="{'widget': 'monetary', 'display_currency': current_company_id.currency_id}"/>
+                                <td class="text-end" style="border: 1px solid #000; text-align: right">
+                                    <t t-if="l['saldo_final'] > 0">
+                                        <span t-esc="l['saldo_final']" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
+                                    </t>
+                                    <t t-else="">
+                                        (<span t-esc="l['saldo_final']" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>)
+                                    </t>
                                 </td>
-                                <t t-set="total_activo" t-value="total_activo + activo['saldo_final']"/>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td><b>Total activo</b></td>
-                                <td class="text-right"><b><span t-esc="total_activo" t-options="{'widget': 'monetary', 'display_currency': current_company_id.currency_id}"/></b></td>
-                            </tr>
-                            <thead>
-                                <tr>
-                                    <td><b>PASIVO</b></td>
-                                    <td colspan="2"></td>
-                                </tr>
-                            </thead>
-                            <tr>
-                                <th>Codigo</th>
-                                <th>Cuenta</th>
-                                <th class="text-right">Saldo</th>
-                            </tr>
-                            <tr t-foreach="result['lineas']['pasivo']" t-as="pasivo">
-                                <td>
-                                    <span t-esc="pasivo['codigo']"/>
-                                </td>
-                                <td>
-                                    <span t-esc="pasivo['cuenta']"/>
-                                </td>
-                                <td class="text-right">
-                                    <span t-esc="pasivo['saldo_final']" t-options="{'widget': 'monetary', 'display_currency': current_company_id.currency_id}"/>
-                                </td>
-                                <t t-set="total_pasivo" t-value="total_pasivo + pasivo['saldo_final']"/>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td><b>Total pasivo</b></td>
-                                <td class="text-right"><b><span t-esc="total_pasivo" t-options="{'widget': 'monetary', 'display_currency': current_company_id.currency_id}"/></b></td>
-                            </tr>
-                            <thead>
-                                <tr>
-                                    <td><b>CAPITAL</b></td>
-                                    <td colspan="2"></td>
-                                </tr>
-                            </thead>
-                            <tr>
-                                <th>Codigo</th>
-                                <th>Cuenta</th>
-                                <th class="text-right">Saldo</th>
-                            </tr>
-                            <tr t-foreach="result['lineas']['capital']" t-as="capital">
-                                <td>
-                                    <span t-esc="capital['codigo']"/>
-                                </td>
-                                <td>
-                                    <span t-esc="capital['cuenta']"/>
-                                </td>
-                                <td class="text-right">
-                                    <span t-esc="capital['saldo_final']" t-options="{'widget': 'monetary', 'display_currency': current_company_id.currency_id}"/>
-                                </td>
-                                <t t-set="total_capital" t-value="total_capital + capital['saldo_final']"/>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td><b>Total capital</b></td>
-                                <td class="text-right"><b><span t-esc="total_capital" t-options="{'widget': 'monetary', 'display_currency': current_company_id.currency_id}"/></b></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
+                <div class="footer"/>
             </t>
         </t>
     </template>

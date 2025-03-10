@@ -1,71 +1,90 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
+#################################################################################
+# Author      : Rodrigo Contreras (<mrdc.tech>)
+# Copyright(c): 2024
+# All Rights Reserved.
+#
+# This module is copyright property of the author mentioned above.
+# You can`t redistribute it and/or modify it.
+#
+#################################################################################
 
-from odoo import api, models
-from odoo.exceptions import UserError
+from odoo import api, models, fields
 import logging
+from odoo.exceptions import ValidationError
+
+_logger = logging.getLogger(__name__)
+
 
 class ReporteCompras(models.AbstractModel):
     _name = 'report.l10n_gt_extra.reporte_compras'
+    _description = 'Report Compras'
 
     def lineas(self, datos):
         totales = {}
 
         totales['num_facturas'] = 0
-        totales['compra'] = {'exento':0,'neto':0,'iva':0,'total':0}
-        totales['servicio'] = {'exento':0,'neto':0,'iva':0,'total':0}
-        totales['combustible'] = {'exento':0,'neto':0,'iva':0,'total':0}
-        totales['importacion'] = {'exento':0,'neto':0,'iva':0,'total':0}
-        totales['pequeño'] = {'exento':0,'neto':0,'iva':0,'total':0}
+        totales['compra'] = {'exento': 0, 'neto': 0, 'iva': 0, 'total': 0}
+        totales['servicio'] = {'exento': 0, 'neto': 0, 'iva': 0, 'total': 0}
+        totales['importacion'] = {'exento': 0, 'neto': 0, 'iva': 0, 'total': 0}
+        totales['combustible'] = {'exento': 0, 'neto': 0, 'iva': 0, 'total': 0}
+        totales['small_taxpayer'] = {'compra': 0, 'servicio': 0, 'combustible': 0, 'importacion':0,'total': 0}
+        totales['compras'] = {'bienes': 0}
+        totales['total'] = 0
+        totales['resumen'] = {'exento': 0, 'neto': 0, 'iva': 0, 'total': 0}
+        totales['pequenio_contribuyente'] = 0
 
         journal_ids = [x for x in datos['diarios_id']]
-        filtro = [
-            ('state','in',['posted']),
-            ('journal_id','in',journal_ids),
-            ('date','<=',datos['fecha_hasta']),
-            ('date','>=',datos['fecha_desde']),
-        ]
+        tax_ids = [x for x in datos['impuesto_id']]
         
-        if 'type' in self.env['account.move'].fields_get():
-            filtro.append(('type','in',['in_invoice','in_refund']))
-        else:
-            filtro.append(('move_type','in',['in_invoice','in_refund']))
-        
-        facturas = self.env['account.move'].search(filtro)
+        facturas = self.sudo().env['account.move'].search([
+            ('state', 'in', ['draft', 'posted']),
+            ('journal_id', 'in', journal_ids),
+            ('date', '<=', datos['fecha_hasta']),
+            ('date', '>=', datos['fecha_desde']),
+            ('move_type', 'in', ['in_invoice', 'in_refund']),
+            ('company_id', '=', datos['company_id'][0]),
+        ], order='invoice_date, payment_reference')
 
         lineas = []
         for f in facturas:
+
+            proveedor = f.partner_id.name
+            nit = f.partner_id.vat
+
             totales['num_facturas'] += 1
 
             tipo_cambio = 1
             if f.currency_id.id != f.company_id.currency_id.id:
-                total = 0
-                for l in f.line_ids:
-                    if l.account_id.reconcile:
-                        total += l.debit - l.credit
-                if f.amount_total != 0:
-                    tipo_cambio = abs(total / f.amount_total)
+                if 'conversion_rate_ref' in self.env['account.move']._fields:
+                    if f.conversion_rate_ref > 0:
+                        tipo_cambio = f.conversion_rate_ref
+                else:
+                    if f.amount_total_signed and f.amount_total_in_currency_signed:
+                        tipo_cambio = abs(f.amount_total_signed / f.amount_total_in_currency_signed)
+                    if not tipo_cambio or tipo_cambio == 1:
+                        tipo_cambio = f.currency_id.with_context(date=f.invoice_date).rate
 
             tipo = 'FACT'
-            tipo_interno_factura = f.type if 'type' in f.fields_get() else f.move_type
-            if tipo_interno_factura != 'in_invoice':
+            if f.move_type != 'in_invoice':
                 tipo = 'NC'
-            if f.nota_debito:
-                tipo = 'ND'
             if f.partner_id.pequenio_contribuyente:
-                tipo += ' PEQ'
-           
-            numero = f.ref or ''
-            
-            # Por si usa factura electrónica
-            if 'firma_fel' in f.fields_get() and f.firma_fel:
-                numero = str(f.serie_fel) + '-' + str(f.numero_fel)
+                tipo += '_PEQ'
+            if f.type_invoice == 'FESP':
+                tipo = 'FES'
+            if f.tipo_gasto == 'importacion':
+                tipo = 'DA'
+            if f.journal_id.is_receipt_journal == True:
+                tipo = 'REC'
 
             linea = {
                 'estado': f.state,
                 'tipo': tipo,
-                'fecha': f.date,
-                'numero': numero,
-                'proveedor': f.partner_id,
+                'fecha': f.invoice_date,
+                'serie': f.provider_invoice_serial or '',
+                'numero': f.provider_invoice_number or '',
+                'proveedor': proveedor,
+                'nit': nit,
                 'compra': 0,
                 'compra_exento': 0,
                 'servicio': 0,
@@ -74,73 +93,128 @@ class ReporteCompras(models.AbstractModel):
                 'combustible_exento': 0,
                 'importacion': 0,
                 'importacion_exento': 0,
-                'pequeño': 0,
-                'pequeño_exento': 0,
+                'importacion_iva': 0,
+                'compra_iva': 0,
+                'servicio_iva': 0,
+                'combustible_iva': 0,
+                'small_taxpayer_amount': 0,
                 'base': 0,
                 'iva': 0,
+                'subtotal_exento': 0,
                 'total': 0
             }
+            is_compra = False
+            is_service = False
+            is_mix = False
+            is_import = False
+            is_gas = False
+            flag_gas = False
+            signo = 1
+            for linea_factura in f.invoice_line_ids:
 
-            for l in f.invoice_line_ids:
-                precio = ( l.price_unit * (1-(l.discount or 0.0)/100.0) ) * tipo_cambio
+                precio = (linea_factura.price_unit *
+                        (1-(linea_factura.discount or 0.0)/100.0)) * tipo_cambio
                 if tipo == 'NC':
                     precio = precio * -1
+                    signo = -1
+                tipo_linea = f.tipo_gasto
+                
+                if linea_factura.product_id.product_tmpl_id.type == 'service':
+                    tipo_linea = 'servicio'
 
-                tipo_linea = f.tipo_gasto or 'mixto'
-                if tipo_linea == 'mixto':
-                    if l.product_id.type == 'product':
-                        tipo_linea = 'compra'
-                    else:
-                        tipo_linea = 'servicio'
+                if linea_factura.tax_ids:
+                    for tax in linea_factura.tax_ids:
+                        if tax.sat_tax_type == 'gas':
+                            if is_compra or is_service:
+                                is_mix = True
+                                flag_gas = True
+                            else:
+                                is_gas = True
+                                flag_gas = True
+                    if flag_gas:
+                        flag_gas = False
 
-                if f.partner_id.pequenio_contribuyente:
-                    tipo_linea = 'pequeño'
+                if f.tipo_gasto == 'mixto':
 
-                r = l.tax_ids.compute_all(precio, currency=f.currency_id, quantity=l.quantity, product=l.product_id, partner=f.partner_id)
+                    tipo_linea = 'compra'
+                    if linea_factura.product_id:
+                        if linea_factura.product_id.product_tmpl_id.type == 'service':
+                            tipo_linea = 'servicio'
+                    if is_gas:
+                        tipo_linea = 'combustible'
 
-                linea['base'] += r['total_excluded']
-                totales[tipo_linea]['total'] += r['total_excluded']
-                if len(l.tax_ids) > 0:
-                    linea[tipo_linea] += r['total_excluded']
-                    totales[tipo_linea]['neto'] += r['total_excluded']
+                if f.tipo_gasto == 'combustible':
+                    tipo_linea = 'combustible'
+
+                r = linea_factura.tax_ids._origin.compute_all(precio, currency=f.currency_id, quantity=linea_factura.quantity, product=linea_factura.product_id, partner=f.partner_id)
+
+                base_price = linea_factura.price_subtotal * signo
+                if f.currency_id.id != f.company_id.currency_id.id:
+                    base_price = linea_factura.price_subtotal * tipo_cambio
+                linea['base'] += base_price
+                totales[tipo_linea]['total'] += base_price
+
+                if len(linea_factura.tax_ids) > 0:
+                    linea[tipo_linea] += base_price
+                    if tipo_linea == 'compra':
+                        totales['compras']['bienes'] += base_price
+                    totales[tipo_linea]['neto'] += base_price
+                    totales['resumen']['neto'] += base_price
                     for i in r['taxes']:
-                        if i['id'] == datos['impuesto_id'][0]:
+                        if i['id'] in tax_ids:
                             linea['iva'] += i['amount']
+                            linea[tipo_linea+'_iva'] += i['amount']
                             totales[tipo_linea]['iva'] += i['amount']
+                            totales['resumen']['iva'] += i['amount']
                             totales[tipo_linea]['total'] += i['amount']
                         elif i['amount'] > 0:
-                            linea[tipo_linea+'_exento'] += i['amount']
-                            totales[tipo_linea]['exento'] += i['amount']
+                            if tipo_linea == 'combustible':
+                                linea[tipo_linea+'_exento'] += i['amount']
+                                linea['subtotal_exento'] += i['amount']
+                                totales[tipo_linea]['exento'] += i['amount']
+                                totales[tipo_linea]['total'] += i['amount']
+                            else:
+                                linea[tipo_linea+'_exento'] += i['amount']
+                                totales[tipo_linea]['exento'] += i['amount']
+                                totales[tipo_linea]['total'] += i['amount']
+                                linea['subtotal_exento'] += i['amount']
+                            totales['resumen']['exento'] += i['amount']
                 else:
-                    linea[tipo_linea+'_exento'] += r['total_excluded']
-                    totales[tipo_linea]['exento'] += r['total_excluded']
 
-                linea['total'] += precio * l.quantity
+                    if f.partner_id.pequenio_contribuyente:
+                        linea['small_taxpayer_amount'] += base_price
+                        totales['small_taxpayer'][tipo_linea] += base_price
+                        totales['small_taxpayer']["total"] += base_price
+                        totales['pequenio_contribuyente'] += base_price
+                    else:
+                        linea['subtotal_exento'] += base_price
+                        linea[tipo_linea+'_exento'] += base_price
+                        totales[tipo_linea]['exento'] += base_price
+                        totales['resumen']['exento'] += base_price
+                        totales[tipo_linea]['total'] += base_price
 
+                linea['total'] += precio * linea_factura.quantity
+                totales['total'] += precio * linea_factura.quantity
+                    
             lineas.append(linea)
-            
-        lineas = sorted(lineas, key = lambda i: str(i['fecha']) + str(i['numero']))
-
-        return { 'lineas': lineas, 'totales': totales }
-
+        return {'lineas': lineas, 'totales': totales}
+        
     @api.model
     def _get_report_values(self, docids, data=None):
+        return self.get_report_values(docids, data)
+
+    @api.model
+    def get_report_values(self, docids, data=None):
         model = self.env.context.get('active_model')
         docs = self.env[model].browse(self.env.context.get('active_ids', []))
-
-        if len(data['form']['diarios_id']) == 0:
-            raise UserError("Por favor ingrese al menos un diario.")
-
+        company = self.env['res.company'].browse(data['company_id'])
         diario = self.env['account.journal'].browse(data['form']['diarios_id'][0])
-
+        
         return {
             'doc_ids': self.ids,
             'doc_model': model,
             'data': data['form'],
             'docs': docs,
             'lineas': self.lineas,
-            'direccion': diario.direccion and diario.direccion.street,
-            'current_company_id': self.env.company,
+            'company_id': company
         }
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

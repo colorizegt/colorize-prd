@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="l10n_gt_extra_report_config_tree_view" model="ir.ui.view">
+        <field name="name">l10n_gt_extra.report_config.tree.view</field>
+        <field name="model">l10n_gt_extra.report_config</field>
+        <field name="arch" type="xml">
+            <tree string="Reportes">
+                <field name="name"/>
+                <field name="report_type"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="l10n_gt_extra_report_config_form_view" model="ir.ui.view">
+        <field name="name">l10n_gt_extra.report_config_form_view</field>
+        <field name="model">l10n_gt_extra.report_config</field>
+        <field name="arch" type="xml">
+            <form string="Reporte">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="company_id"/>
+                            <field name="report_type"/>
+                        </group>
+                        <group>
+                            <field name="column_numbers"/>
+                            <field name="accountant_name"/>
+                            <field name="legal_representative_name"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="report_section_ids"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group name="text_area" col="3">
+                            <label for="footer_phrase" colspan="4"/>
+                            <field name="footer_phrase" nolabel="1" colspan="4"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_l10n_gt_extra_report_config_form_view" model="ir.actions.act_window">
+        <field name="name">Configuración Reportes GT</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">l10n_gt_extra.report_config</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">Click para agregar Reportes.
+            </p>
+        </field>
+    </record>
+
+    <menuitem action="action_l10n_gt_extra_report_config_form_view" id="menu_l10n_gt_extra_report_config" parent="account.account_account_menu" sequence="15"/>
+
+    <record id="l10n_gt_extra_report_config_section_form_view" model="ir.ui.view">
+        <field name="name">l10n_gt_extra.report_config_section_form_view</field>
+        <field name="model">l10n_gt_extra.report_config.section</field>
+        <field name="arch" type="xml">
+            <form string="Seccion de Reporte">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="report_config_id" invisible="1"/>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="not_show_name"/>
+                            <field name="not_show_totals"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="lines_ids"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="excluded_journal_ids"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="section_header"/>
+                            <field name="codes_to_sum"/>
+                            <field name="total_name"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="l10n_gt_extra_report_config_section_lines_form_view" model="ir.ui.view">
+        <field name="name">l10n_gt_extra.report_config_section_lines_form_view</field>
+        <field name="model">l10n_gt_extra.report_config.section.lines</field>
+        <field name="arch" type="xml">
+            <form string="Seccion de Reporte">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="section_id" invisible="1"/>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="column_number"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="account_ids"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="calculate_subtotal"/>
+                            <field name="codes_to_sum" invisible="calculate_subtotal == False"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

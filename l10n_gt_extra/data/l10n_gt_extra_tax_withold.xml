@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="gt_fiscal_position_normal" model="account.fiscal.position">
+            <field name="name">Normal</field>
+            <field name="tax_withold" eval="False" />
+            <field name="sequence">1</field>
+        </record>
+
+        <record id="gt_fiscal_position_tax_withold" model="account.fiscal.position">
+            <field name="name">Exento de IVA</field>
+            <field name="tax_withold" eval="True" />
+            <field name="sequence">2</field>
+        </record>
+
+    </data>
+</odoo>

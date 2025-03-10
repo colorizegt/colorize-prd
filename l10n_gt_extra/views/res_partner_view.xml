@@ -1,22 +1,6 @@
-<openerp>
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
     <data>
-
-        <!--Se agrega el campo VAT (NIT)-->
-        <record model="ir.ui.view" id="l10n_gt_extra.l10n_gt_view_res_partner_form">
-            <field name="name">l10n_gt_extra.l10n_gt_view_partner_form</field>
-            <field name="model">res.partner</field>
-            <field name="inherit_id" ref="base.view_partner_form"/>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-                <field name="website" position="after">
-                    <field name="pequenio_contribuyente"></field>
-                </field>
-                <field name="vat" position="after">
-                    <field name="no_validar_nit"></field>
-                    <field name="cui"></field>
-                </field>
-            </field>
-        </record>
 
         <record model="ir.ui.view" id="l10n_gt_extra.l10n_gt_view_res_partner_filter">
             <field name="name">l10n_gt_extra.l10n_gt_view_res_partner_filter</field>
@@ -25,10 +9,28 @@
             <field name="type">search</field>
             <field name="arch" type="xml">
                 <field name="name" position="after">
-                    <field name="vat" string="NIT" select="1"></field>
+                    <field name="vat" string="NIT" select="1" />
                 </field>
             </field>
         </record>
 
+        <record model="ir.ui.view" id="partner_view_tax_withholding">
+            <field name="name">res.partner.tax_withholding</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form/sheet/group" position="after">
+                    <div class="oe_inline">
+                        <label for="tax_withholding_isr" class="col-form-label">Retención ISR</label>
+                        <field name="tax_withholding_isr" widget="selection" invisible="parent_id"/>
+                    </div>
+                    <div class="oe_inline">
+                        <label for="tax_withholding_iva" class="col-form-label">Retención ISR</label>
+                        <field name="tax_withholding_iva" widget="selection" invisible="parent_id"/>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+
     </data>
-</openerp>
+</odoo>
