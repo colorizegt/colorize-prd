@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record model="ir.ui.view" id="pos_multicert_felgt.pos_order_inherit">
+        <field name="name">pos_multicert_felgt.pos_order_inherit</field>
+        <field name="model">pos.order</field>
+        <field name="active">True</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_pos_form" />
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='extra']" position="after">
+                <page string="FEL">
+                    <group>
+                        <group string="Datos Factura" invisible="fel_gt_uuid_invoice == False">
+                            <field name="fel_gt_dte_invoice"/>
+                            <field name="fel_gt_uuid_invoice"/>
+                            <field name="fel_gt_serie_invoice"/>
+                            <field name="fel_gt_date_invoice"/>
+                        </group>
+                        <group string="Contingencia" invisible="fel_gt_has_contingency == False">
+                            <field name="fel_gt_has_contingency"/>
+                            <field name="fel_gt_contingency_access_number"/>
+                        </group>
+                        <group string="Anulación" invisible="state != 'cancel'">
+                            <field name="fel_gt_cancel_motive"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+            <xpath expr="//button[@name='refund']" position="after">
+                <button name="cancel_fel_gt" string="Cancelar FEL" type="object" groups="multicert_felgt.felgt_group_user" invisible="state != 'invoiced'"></button>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

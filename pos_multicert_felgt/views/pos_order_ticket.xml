@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_pos_order_ticket">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <div class="article">
+                    <div class="header">
+                    </div>
+                    <div class="page text-center">
+                        <br/>
+                        <t t-if="o.config_id.fel_gt_show_logo">
+                            <t t-if="o.company_id.logo and not o.config_id.fel_gt_custom_logo">
+                                <p class="text-center">
+                                    <img t-att-src="image_data_uri(o.company_id.logo)" style="width: 10em"/>
+                                </p>
+                            </t>
+                            <t t-if="o.config_id.fel_gt_custom_logo">
+                                <p class="text-center">
+                                    <img t-att-src="image_data_uri(o.config_id.fel_gt_pos_custom_logo)" style="width: 10em"/>
+                                </p>
+                            </t>
+                        </t>
+                        <span t-field="o.company_id.name"/><br/>
+                        <br/>
+                        NIT: <span t-field="o.company_id.vat"/><br/>
+                        <span style="font-weight: bolder;" t-field="o.account_move.journal_id.fel_gt_commercial_name"/><br/>
+                        <t t-if="o.account_move.journal_id.fel_gt_address">
+                            <span t-field="o.account_move.journal_id.fel_gt_address"/>
+                        </t>
+                        <t t-if="o.account_move.journal_id.fel_gt_zip_code">
+                            , <span t-field="o.account_move.journal_id.fel_gt_zip_code"/>
+                        </t>
+                        <br/>
+                        <t t-if="o.account_move.journal_id.fel_gt_township">
+                            , <span t-field="o.account_move.journal_id.fel_gt_township"/>
+                        </t>
+                        <t t-if="o.account_move.journal_id.fel_gt_department">
+                            , <span t-field="o.account_move.journal_id.fel_gt_department"/>
+                        </t>
+                        <br/>
+                        <t t-if="o.company_id.phone">
+                            Télefono: <span t-field="o.company_id.phone"/>
+                        </t>
+                        <br/>
+                        <t t-if="o.company_id.website">
+                            Sitio Web: <span t-field="o.company_id.website"/>
+                        </t>
+                        <br/>
+                        <t t-if="o.user_id">
+                            <div>
+                                <div style="text-align: center;">---------------------------------------------------</div>
+                                <div>Atendido por: <t t-esc="o.user_id.name" /></div>
+                            </div>
+                        </t>
+                        <t t-if='o.fel_gt_dte_invoice'>
+                            <div style="text-align: center;">---------------------------------------------------</div>
+                            <div>DOCUMENTO TRIBUTARIO ELECTRONICO</div>
+                            <t t-if="o.account_move.move_type == 'out_invoice'">
+                                FACTURA ELECTRÓNICA<br/>
+                            </t>
+                            <t t-if="o.account_move.move_type == 'out_refund'">
+                                NOTA DE CREDITO ELECTRÓNICA
+                            </t>
+                            <div>
+                                <t t-if="o.fel_gt_uuid_invoice">
+                                    AUTORIZACIÓN: <t t-esc='o.fel_gt_uuid_invoice'/>
+                                </t>
+                            </div>
+                            <div>
+                                <t t-if="o.fel_gt_serie_invoice">
+                                    SERIE: <t t-esc='o.fel_gt_serie_invoice'/>
+                                </t>
+                            </div>
+                            <div>
+                                <t t-if="o.fel_gt_dte_invoice">
+                                    NÚMERO: <t t-esc='o.fel_gt_dte_invoice'/>
+                                </t>
+                            </div>
+                            <div>
+                                <t t-if="o.fel_gt_date_invoice">
+                                    FECHA HORA CERTIFICACIÓN: <t t-esc='o.fel_gt_date_invoice'/>
+                                </t>
+                            </div>
+                            <div>
+                                <t t-if="o.date_order">
+                                    FECHA FACTURA: <span t-field="o.date_order" t-options='{"widget": "date","format": "dd-MM-yyyy"}'/>
+                                </t>
+                            </div>
+                        </t>
+                        <t t-if='o.fel_gt_has_contingency'>
+                            <div style="text-align: center;">---------------------------------------------------</div>
+                            <div>DOCUMENTO EN CONTINGENCIA</div>
+                            <div>FACTURA ELECTRÓNICA</div>
+                            <div>
+                                <t t-if="o.fel_gt_contingency_access_number">
+                                    NÚMERO DE ACCESO: <t t-esc='o.fel_gt_contingency_access_number'/>
+                                </t>
+                            </div>
+                        </t>
+                        <div style="text-align: center;">---------------------------------------------------</div>
+                        <div>
+                            <t t-if="o.partner_id">
+                                Cliente: <t t-esc='o.partner_id.name'/>
+                            </t>
+                        </div>
+                        <div>
+                            <t t-if="o.partner_id.vat">
+                                NIT: <t t-esc='o.partner_id.vat'/>
+                            </t>
+                            <t t-else="">
+                                <t t-if="o.partner_id.dpi_number">
+                                    DPI: <t t-esc='o.partner_id.dpi_number'/>
+                                </t>
+                                <t t-else="">
+                                    <t t-if="o.partner_id.passport_number">
+                                        PASAPORTE: <t t-esc='o.partner_id.passport_number'/>
+                                    </t>
+                                </t>
+                            </t>
+                        </div>
+                        <div>Dirección:
+                            <t t-if="o.partner_id.street">
+                                <t t-esc='o.partner_id.street'/>
+                            </t>
+                            <t t-else="">
+                                Ciudad
+                            </t>
+                        </div>
+                        <div style="text-align: center;">---------------------------------------------------</div>
+                         </div>
+                         <br /><br />
+                        <div>
+                        <table width="100%" class="table table-borderless">
+                            <colgroup>
+                                <col width="50%"/>
+                                <col width="25%"/>
+                                <col width="25%"/>
+                            </colgroup>
+                            <tr>
+                                <th>Cant.</th>
+                                <th>Descripción</th>
+                                <th>Monto</th>
+                            </tr>
+                            <tr t-foreach="o.lines" t-as="l">
+                                <td class="text-right">
+                                    <t t-esc="l.qty"/>
+                                </td>
+                                <td>
+                                    <t t-esc="l.product_id.name"/>
+                                </td>
+                                <td class="text-right">
+                                    <t t-esc="l.price_unit * l.qty" t-options="{'widget': 'monetary', 'display_currency': o.account_move.currency_id}"/>
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="clearfix">
+                            <div class="row" name="total">
+                                <div class="col-6" />
+                                <div class="col-6 pull-right">
+                                    <table class="table table-borderless" style="min-width: 200px; max-width: 350px;">
+                                        <tr class="border-black">
+                                            <td>
+                                                <strong>TOTAL</strong>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-field="o.amount_total" t-options="{'widget': 'monetary', 'display_currency': o.account_move.currency_id}" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <br/>
+                        <table width="100%" class="table table-borderless">
+                            <t t-foreach="o.payment_ids" t-as="l">
+                                <colgroup>
+                                    <col width="50%"/>
+                                    <col width="50%"/>
+                                </colgroup>
+                                <tr>
+                                    <td class="text-left">
+                                        <span t-field="l.payment_method_id.name"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-field="l.amount" t-options="{'widget': 'monetary', 'display_currency': o.account_move.currency_id}"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </table>
+                        <br/>
+                        <table width="100%" class="table table-borderless">
+                            <colgroup>
+                                <col width="20%"/>
+                                <col width="40%"/>
+                                <col width="40%"/>
+                            </colgroup>
+                            <tr>
+                                <td></td>
+                                <td class="text-left">CAMBIO:</td>
+                                <td class="text-right">
+                                    <span t-esc="0.00" t-options="{'widget': 'monetary', 'display_currency': o.account_move.currency_id}"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <div style="text-align: center;">---------------------------------------------------</div>
+
+                        <div style="text-align: center;">
+                            <tr t-foreach="o.account_move.journal_id.fel_gt_phrases" t-as="l">
+                                <td>
+                                    <span t-field="l.name"/><br/>
+                                </td>
+                            </tr>
+                        </div>
+
+                        <div style="text-align: center;">---------------------------------------------------</div>
+
+                        <div style="text-align: center;">
+                            <t t-if="o.config_id">
+                                Punto de Venta: <span t-field="o.config_id.name"/><br/>
+                            </t>
+                            <t t-if="o.date_order">
+                                Generado el: <span t-field="o.date_order"/><br/>
+                            </t>
+                        </div>
+
+                        <div style="text-align: center;">---------------------------------------------------</div>
+
+                        <t t-if='o.fel_gt_dte_invoice'>
+                            <div style="text-align: center; font-size: 90%;">
+                                <div>CERTIFICADOR</div>
+                                <t t-if="o.config_id.fel_gt_certifier == 'infile'">
+                                    <div>Infile, S.A.</div>
+                                    <div>NIT CERTIFICADOR</div>
+                                    <div>12521337</div>
+                                </t>
+                                <t t-if="o.config_id.fel_gt_certifier == 'guatefacturas'">
+                                    <div>Guatefacturas, S.A.</div>
+                                    <div>NIT CERTIFICADOR</div>
+                                    <div>56407734</div>
+                                </t>
+                                <t t-if="o.config_id.fel_gt_certifier == 'g4s'">
+                                    <div>G4S Documenta, S.A.</div>
+                                    <div>NIT CERTIFICADOR</div>
+                                    <div>60010207</div>
+                                </t>
+                                <t t-if="o.config_id.fel_gt_certifier == 'megaprint'">
+                                    <div>Megaprint, S.A.</div>
+                                    <div>NIT CERTIFICADOR</div>
+                                    <div>50510231</div>
+                                </t>
+                                <t t-if="o.config_id.fel_gt_certifier == 'digifact'">
+                                    <div>Digifact Servicios, S.A.</div>
+                                    <div>NIT CERTIFICADOR</div>
+                                    <div>77454820</div>
+                                </t>
+                                
+                            </div>
+                        </t>
+
+                        <div style="text-align: center;">-----------------------------------------------</div>
+
+                        <div style="vertical-align:middle;">
+                            <br/>
+                            <div style="float:left;">
+                                <t t-if="o.config_id.fel_gt_show_fel_logo">
+                                    <img src="/pos_multicert_felgt/static/src/img/logo_fel.jpg" style="max-height: 60px;"/>
+                                </t>
+                            </div>
+                            <div style="float:right;">
+                                <t t-if="o.config_id.fel_gt_show_qrcode">
+                                    <t t-if="o.fel_gt_uuid_invoice">
+                                        <img t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s'%('QR', o.account_move.fel_gt_link, 100, 100)" t-if="o.account_move.fel_gt_link"/>
+                                    </t>
+                                    <t t-else="">
+                                        <img t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s'%('QR', o.account_move.sat_link, 100, 100)" t-if="o.account_move.sat_link"/>
+                                    </t>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

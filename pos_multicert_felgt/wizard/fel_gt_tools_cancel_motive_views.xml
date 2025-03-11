@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="fel_gt_tools_cancel_motive_form" model="ir.ui.view">
+        <field name="name">fel_gt_tools_cancel_motive_form</field>
+        <field name="model">fel_gt.tools.cancel_motive</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="order_id" readonly="1"/>
+                            <field name="motive"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="fel_gt_cancel" string="Cancelar Factura" type="object" default_focus="1" class="oe_highlight" />
+                    <button string="Cancelar" class="btn btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fel_gt_cancel_motive" model="ir.actions.act_window">
+        <field name="name">Motivo de Cancelación</field>
+        <field name="res_model">fel_gt.tools.cancel_motive</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

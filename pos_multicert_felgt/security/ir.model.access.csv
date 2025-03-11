@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_fel_gt_tools_cancel_motive_user,pos_multicert_felgt.fel_gt.tools.cancel_motive,model_fel_gt_tools_cancel_motive,,1,1,1,1
