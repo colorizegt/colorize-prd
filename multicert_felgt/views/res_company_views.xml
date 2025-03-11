@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <data noupdate="1">
+        <record id="base.main_company" model="res.company">
+            <field file="multicert_felgt/static/src/img/company_image.png" name="fel_gt_invoice_logo" type="base64"/>
+        </record>
+    </data>
+
+    <record id="multicert_felgt.mutlicert_felgt_res_company_form_view_inherit" model="ir.ui.view">
+        <field name="name">multicert_felgt.muticert.felgt.res.company.form.inherit</field>
+        <field name="active">True</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <xpath expr="//page" position="after">
+                <page string="Configuración de Factura FEL Guatemala" invisible="country_code != 'GT'" groups="multicert_felgt.felgt_group_manager">
+                    <group string="Configuración por Defecto">
+                        <group>
+                            <field required="1" domain="[('report_name', 'ilike', '%invoice_template%')]" name="fel_gt_report_template_id" options="{'no_create': True}"/>
+                            <button class="oe_stat_button oe_edit_only" icon="fa-pencil-square-o" name="%(action_fel_report_extracontent)d" type="action">
+                                <span>Contenido Extra</span>
+                            </button>
+                        </group>
+                        <group>
+                            <field class="oe_avatar" name="fel_gt_invoice_logo" widget="image"/>
+                            <field name="fel_gt_standard_template"/>
+                        </group>
+                    </group>
+                    <group name="fel_gt_watermark" string="Marca de Agua">
+                        <group>
+                            <field name="fel_gt_is_show_watermark"/>
+                            <field name="fel_gt_watermark" invisible="fel_gt_is_show_watermark == False"/>
+                            <field invisible="fel_gt_is_show_watermark == False or fel_gt_watermark != 'logo'" class="oe_avatar" name="fel_gt_watermark_logo" widget="image"/>
+                            <field invisible="fel_gt_is_show_watermark == False or fel_gt_watermark != 'text'" required="fel_gt_watermark != 'text'" name="fel_gt_watermark_text"/>
+                            <field invisible="fel_gt_is_show_watermark == False or fel_gt_watermark != 'text'" required="fel_gt_watermark != 'text'" name="fel_gt_watermark_text_color" placeholder="like #2b4e99" widget="color"/>
+                            <field invisible="fel_gt_is_show_watermark == False or fel_gt_watermark != 'text'" required="fel_gt_watermark != 'text'" name="fel_gt_watermark_text_font_size"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Colores Compañia">
+                            <field name="fel_gt_company_color" placeholder=" like #b30000" widget="color"/>
+                            <field name="fel_gt_company_address_color" placeholder=" like #b30010" widget="color"/>
+                            <field name="fel_gt_is_company_bold"/>
+                        </group>
+                        <group string="Colores Cliente">
+                            <field name="fel_gt_customer_color" placeholder=" like #2763a1" widget="color"/>
+                            <field name="fel_gt_customer_address_color" placeholder=" like #2763c1" widget="color"/>
+                            <field name="fel_gt_is_customer_bold"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Colores Tema">
+                            <group>
+                                <field name="fel_gt_theme_color" placeholder=" like #d4d2d2" widget="color"/>
+                                <field name="fel_gt_theme_text_color" placeholder=" like #5cc2d2" widget="color"/>
+                                <field name="fel_gt_text_color" placeholder=" like #5bb3d2" widget="color"/>
+                            </group>
+                            <group>
+                                <field name="fel_gt_odd_party_color" placeholder=" like #aea8a8" widget="color"/>
+                                <field name="fel_gt_even_party_color" placeholder=" like #aea8aa" widget="color"/>
+                            </group>
+                        </group>
+                    </group>
+                    <group string="Otras Configuraciones">
+                        <group>
+                            <group>
+                                <field name="fel_gt_is_description"/>
+                                <field name="fel_gt_add_product_image"/>
+                                <field name="fel_gt_image_max_width" invisible="not fel_gt_add_product_image"/>
+                                <field name="fel_gt_image_max_height" invisible="not fel_gt_add_product_image"/>
+                                <field name="fel_gt_image_min_width" invisible="not fel_gt_add_product_image"/>
+                                <field name="fel_gt_image_min_height" invisible="not fel_gt_add_product_image"/>
+                                <field name="fel_gt_add_amount_in_words"/>
+                                <field name="fel_gt_is_show_notes"/>
+                            </group>
+                            <group>
+                                <field name="fel_gt_is_show_payment_notes"/>
+                                <field name="fel_gt_is_show_barcode"/>
+                                <field name="fel_gt_qr_code"/>
+                                <field name="fel_gt_logo"/>
+                                <field name="fel_gt_use_as_default_template"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="fel_gt_invoice_tax_column"/>
+                                <field name="fel_gt_invoice_discount_column"/>
+                                <field name="fel_gt_invoice_hide_payments"/>
+                                <field name="fel_gt_invoice_show_customer_code"/>
+                            </group>
+                            <group>
+                                <field name="fel_gt_invoice_show_invoice_ref"/>
+                                <field name="fel_gt_invoice_show_origin_order_name"/>
+                                <field name="fel_gt_invoice_show_origin_order_date"/>
+                                <field name="fel_gt_invoice_show_invoice_date_due"/>
+                            </group>
+                        </group>
+                    </group>
+                    <group>
+                        <group name="fel_gt_font" string="Letra Factura">
+                            <label for="fel_gt_font_id" string="Report Font"/>
+                            <div>
+                                <field class="oe_inline" name="fel_gt_font_id" required="True" widget="selection"/>
+                                <button class="oe_link" name="fel_gt_act_discover_fonts" string="(recargar fuentes)" title="Por favor, haz clic aquí si deseas obtener todas las fuentes de tu sistema. Después de hacer clic, por favor recarga la página." type="object"/>
+                            </div>
+                            <field name="fel_gt_font_size"/>
+                        </group>
+                        <group string="Pie de Factura">
+                            <field name="fel_gt_report_footer_selection"/>
+                            <field name="fel_gt_logo_footer" invisible="fel_gt_report_footer_selection != 'multi_columns'" class="oe_avatar" widget="image"/>
+                        </group>
+                    </group>
+                    <group col="4" string="Firma">
+                        <field name="fel_gt_is_show_signature"/>
+                        <field invisible="fel_gt_is_show_signature == False" required="fel_gt_is_show_signature == True" class="oe_avatar" name="fel_gt_signature" widget="image"/>
+                    </group>
+                </page>
+                <page string="Configuración Certificador FEL Guatemala" invisible="country_code != 'GT'" groups="multicert_felgt.felgt_group_manager">
+                    <group string="Configuración Facturación Electrónica">
+                        <group>
+                            <field name="fel_gt_certifier" required="1"/>
+                            <field name="fel_gt_currency_from_invoice" required="1"/>
+                            <field required="not fel_gt_currency_from_invoice" invisible="fel_gt_currency_from_invoice" name="fel_gt_invoice_currency"/>
+                            <field name="fel_gt_invoice_line_name"/>
+                            <field name="fel_gt_default_code_divider"/>
+                            <field name="fel_gt_price_tax_rounding"/>
+                        </group>
+                        <group>
+                            <field name="fel_gt_publish_onerror"/>
+                            <field name="fel_gt_move_name"/>
+                            <field name="fel_gt_establishment_code"/>
+                            <field name="fel_gt_small_taxpayer_withholding"/>
+                            <field name="fel_gt_resolution_date"/>
+                            <field name="fel_gt_resolution_number"/>
+                            <field name="fel_gt_old_tax_regime"/>
+                        </group>
+                    </group>
+                    <group string="Configuración InFile" invisible="fel_gt_certifier != 'infile'">
+                        <group>
+                            <field required="fel_gt_certifier == 'infile'" name="fel_gt_infile_cert_method"/>
+                            <field required="fel_gt_certifier == 'infile' and fel_gt_infile_cert_method == 'direct'" invisible="fel_gt_infile_cert_method != 'direct'" name="fel_gt_infile_xml_url_direct"/>
+                            <field required="fel_gt_certifier == 'infile'" name="fel_gt_infile_user"/>
+                            <field required="fel_gt_certifier == 'infile'" name="fel_gt_infile_xml_key_signature"/>
+                        </group>
+                        <group>
+                            <field required="fel_gt_certifier == 'infile' and fel_gt_infile_cert_method == 'signature'" name="fel_gt_infile_xml_url_signature" invisible="fel_gt_infile_cert_method != 'signature'"/>
+                            <field required="fel_gt_certifier == 'infile'" name="fel_gt_infile_key_certificate"/>
+                            <field required="fel_gt_certifier == 'infile' and fel_gt_infile_cert_method == 'signature'" name="fel_gt_infile_url_certificate" invisible="fel_gt_infile_cert_method != 'signature'"/>
+                            <field required="fel_gt_certifier == 'infile' and fel_gt_infile_cert_method == 'signature'" name="fel_gt_infile_url_anulation"/>
+                        </group>
+                    </group>
+                    <group string="Configuración Guatefacturas" invisible="fel_gt_certifier != 'guatefacturas'">
+                        <group>
+                            <field required="fel_gt_certifier == 'guatefacturas'" name="fel_gt_guatefacturas_user"/>
+                            <field required="fel_gt_certifier == 'guatefacturas'" name="fel_gt_guatefacturas_password"/>
+                            <field required="fel_gt_certifier == 'guatefacturas'" name="fel_gt_guatefacturas_auth_user"/>
+                        </group>
+                        <group>
+                            <field required="fel_gt_certifier == 'guatefacturas'" name="fel_gt_guatefacturas_auth_password"/>
+                            <field required="fel_gt_certifier == 'guatefacturas'" name="fel_gt_guatefacturas_xml_url_signature"/>
+                        </group>
+                    </group>
+                    <group string="Configuración G4S" invisible="fel_gt_certifier != 'g4s'">
+                        <group>
+                            <field required="fel_gt_certifier == 'g4s'" name="fel_gt_g4s_requestor"/>
+                            <field required="fel_gt_certifier == 'g4s'" name="fel_gt_g4s_xml_url_signature"/>
+                        </group>
+                        <group>
+                            <field required="fel_gt_certifier == 'g4s'" name="fel_gt_g4s_user"/>
+                        </group>
+                    </group>
+                    <group string="Configuración MegaPrint" invisible="fel_gt_certifier != 'megaprint'">
+                        <group>
+                            <field required="fel_gt_certifier == 'megaprint'" name="fel_gt_megaprint_user"/>
+                            <field required="fel_gt_certifier == 'megaprint'" name="fel_gt_megaprint_apikey"/>
+                            <field required="fel_gt_certifier == 'megaprint'" name="fel_gt_megaprint_xml_url_signature"/>
+                            <field required="fel_gt_certifier == 'megaprint'" name="fel_gt_megaprint_xml_url_verify"/>
+                            <field required="fel_gt_certifier == 'megaprint'" name="fel_gt_megaprint_xml_url_registry"/>
+                            <field required="fel_gt_certifier == 'megaprint'" name="fel_gt_megaprint_xml_url_cancel"/>
+                        </group>
+                        <group>
+                            <field required="fel_gt_certifier == 'megaprint'" name="fel_gt_megaprint_xml_url_pdf"/>
+                            <field required="fel_gt_certifier == 'megaprint'" name="fel_gt_megaprint_url_token"/>
+                            <field name="fel_gt_megaprint_token_expiry_date" help="Aqui podra Observar La Vigencia del Token Generado por MegaPrint."/>
+                            <field name="fel_gt_megaprint_token"/>
+                            <div class="mt16">
+                                <button name="generate_megaprint_token" type="object" string="Obtener Token" class="btn-secondary ps-2 w-100" icon="fa-refresh" title="Se enviara una solicitud a MegaPrint para la generación del Token."/>
+                            </div>
+                        </group>
+                    </group>
+                    <group string="Configuración Digifact" invisible="fel_gt_certifier != 'digifact'">
+                        <group>
+                            <field required="fel_gt_certifier == 'digifact'" name="fel_gt_digifact_user"/>
+                            <field required="fel_gt_certifier == 'digifact'" name="fel_gt_digifact_password"/>
+                            <field required="fel_gt_certifier == 'digifact'" name="fel_gt_digifact_api_xml_url_signature"/>
+                            <field required="fel_gt_certifier == 'digifact'" name="fel_gt_digifact_api_pdf_url_signature"/>
+                            <field required="fel_gt_certifier == 'digifact'" name="fel_gt_digifact_url_token"/>
+                            <field name="fel_gt_digifact_token_expiry_date"/>
+                            <field name="fel_gt_digifact_token"/>
+                            <div class="mt16">
+                                <button name="generate_digifact_token" type="object" string="Obtener Token" class="btn-secondary ps-2 w-100" icon="fa-refresh" title="Se enviara una solicitud a Digifact para la generación del Token."/>
+                            </div>
+                        </group>
+                        <group>
+                            <field required="fel_gt_certifier == 'digifact'" name="fel_gt_digifact_url_token_nuc"/>
+                            <field name="fel_gt_digifact_token_nuc_expiry_date"/>
+                            <field name="fel_gt_digifact_token_nuc"/>
+                            <div class="mt16">
+                                <button name="generate_digifact_token_nuc" type="object" string="Obtener Token" class="btn-secondary ps-2 w-100" icon="fa-refresh" title="Se enviara una solicitud a Digifact para la generación del Token."/>
+                            </div>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+    
+</odoo>

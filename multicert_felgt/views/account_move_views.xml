@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="multicert_felgt_account_invoice_tree_view_inherit" model="ir.ui.view">
+        <field name="name">multicert.felgt.account.invoice.tree.inherit</field>
+        <field name="active">True</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+            <field name="payment_state" position="before">
+                <field name="fel_gt_serie" optional="show"/>
+                <field name="fel_gt_dte_number" optional="show"/>
+                <field name="fel_gt_uuid" optional="hide"/>
+                <field decoration-danger="fel_gt_state in ('sat_validation_error','cancel')" decoration-info="fel_gt_state == 'pending'" decoration-success="fel_gt_state == 'certified'" decoration-warning="fel_gt_state == 'contingency'" name="fel_gt_state" widget="badge"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="multicert_felgt_account_invoice_form_view_inherit" model="ir.ui.view">
+        <field name="name">multicert.felgt.account.invoice.form.inherit</field>
+        <field name="active">True</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_date']" position="after">
+                <field domain="[('report_name', 'ilike', '%invoice_template%')]" name="fel_gt_report_template_id" options="{'no_create': True}"/>
+                <field invisible="1" name="fel_gt_report_template_id1"/>
+            </xpath>
+            <xpath expr="//widget[@name='web_ribbon']" position="after">
+                <field invisible="1" name="fel_gt_state"/>
+                <widget invisible="fel_gt_state in ('sat_validation_error','pending','certified','cancel') or payment_state in ('paid', 'in_payment')" bg_color="bg-warning" name="web_ribbon" title="Contingencia FEL"/>
+                <widget invisible="fel_gt_state not in ('cancel') or payment_state in ('paid', 'in_payment')" bg_color="bg-danger" name="web_ribbon" title="Cancelada FEL"/>
+                <widget invisible="fel_gt_state in ('contingency','pending','certified','cancel') or payment_state in ('paid', 'in_payment')" bg_color="bg-danger" name="web_ribbon" title="Error en datos FEL"/>
+            </xpath>
+            <xpath expr="//button[@name='button_draft']" position="after">
+                <button invisible="move_type == 'out_refund' or state not in ('posted')" groups="account.group_account_invoice" name="fel_gt_action_debit_note" string="Nota de débito" type="object"/>
+                <button invisible="not fel_gt_uuid" name="generate_fel_gt_certifier_pdf" type="object" class="oe_highlight" icon="fa-file-pdf-o" string="VER DOCUMENTO ELECTRÓNICO"/>
+                <button name="fel_gt_cancel" string="Cancelar FEL" type="object" groups="multicert_felgt.felgt_group_user" invisible="state == 'posted' or not fel_gt_uuid"></button>
+            </xpath>
+            <field name="partner_id" position="after">
+                <field invisible="1" name="fel_gt_default_invoice_type"/>
+                <field invisible="fel_gt_default_invoice_type != 'none'" readonly="state != 'draft'" name="fel_gt_invoice_type"/>
+            </field>
+            <field name="invoice_date" position="after">
+                <field invisible="1" name="fel_gt_active"/>
+                <field invisible="not fel_gt_uuid" name="fel_gt_sat_link" text="VER DOCUMENTO ELECTRÓNICO EN SAT" widget="url"/>
+            </field>
+            <xpath expr="//page[@id='other_tab']" position="after">
+                <page string="FEL" invisible="move_type not in ('in_invoice','out_invoice','out_refund') or not fel_gt_active" readonly="state in ('posted','cancel')">
+                    <form>
+                        <group>
+                            <group string="Datos Facturación" invisible="fel_gt_state != 'certified'">
+                                <field name="fel_gt_dte_number" readonly="1" invisible="not fel_gt_dte_number"/>
+                                <field name="fel_gt_serie" readonly="1" invisible="not fel_gt_serie"/>
+                                <field name="fel_gt_uuid" readonly="1" invisible="not fel_gt_uuid"/>
+                                <field name="fel_gt_dte_date" readonly="1" invisible="not fel_gt_dte_date"/>
+                                <field name="fel_gt_dte_issue_date" readonly="1" invisible="not fel_gt_uuid"/>
+                                <field name="fel_gt_total_in_letters" readonly="1" invisible="not fel_gt_total_in_letters"/>
+                                <field invisible="1" name="fel_gt_xml_fel_sent_name"/>
+                                <field filename="fel_gt_xml_fel_sent_name" name="fel_gt_xml_fel_sent" readonly="1" invisible="not fel_gt_xml_fel_sent"/>
+                                <field invisible="1" name="fel_gt_xml_fel_certified_name"/>
+                                <field filename="fel_gt_xml_fel_certified_name" name="fel_gt_xml_fel_certified" readonly="1" invisible="not fel_gt_xml_fel_certified"/>
+                                <field name="fel_gt_cancel_motive" invisible="state == 'posted'" readonly="state == 'cancel'"/>
+                            </group>
+
+                            <group string="Datos Contingencia" invisible="fel_gt_state != 'contingency' and not fel_gt_has_contingency">
+                                <field name="fel_gt_has_contingency" readonly="state != 'draft'"/>
+                                <field name="fel_gt_contingency_access_number" readonly="1" invisible="not fel_gt_contingency_access_number"/>
+                            </group>
+
+                            <group string="Frases FEL">
+                                <field name="fel_gt_phrases" widget="many2many_tags" readonly="state != 'draft'"/>
+                            </group>
+
+                            <group string="Adicionales FEL">
+                                <field invisible="move_type != 'out_refund'" name="fel_gt_old_tax_regime"/>
+                                <field readonly="state != 'draft'" name="fel_gt_invoice_type"/>
+                                <field invisible="fel_gt_invoice_type != 'RECI'" name="fel_gt_document_type"/>
+                                <field name="fel_gt_withhold_amount" invisible="1"/>
+                                <field name="fel_gt_source_debit_note_id" required="fel_gt_invoice_type == 'NDEB'" invisible="fel_gt_invoice_type != 'NDEB'" readonly="state != 'draft'"/>
+                                <field name="fel_gt_source_credit_note_id" required="fel_gt_invoice_type == 'NCRE'" invisible="fel_gt_invoice_type != 'NCRE'" readonly="state != 'draft'"/>
+                                <field invisible="1" name="fel_gt_is_foreign"/>
+                                <field invisible="not fel_gt_enable_cancel_bypass" readonly="state != 'draft'" name="fel_gt_enable_cancel_bypass"/>
+                            </group>
+                            
+                        </group>
+                    </form>
+                </page>
+            </xpath>
+            <xpath expr="//field[@name='invoice_incoterm_id']" position="attributes">
+                <attribute name="required">fel_gt_is_foreign == True</attribute>
+            </xpath>
+            <xpath expr="//field[@name='invoice_line_ids']" position="attributes">
+                <attribute name="readonly">
+                    fel_gt_state == 'certified' or state not in ('draft')
+                </attribute>
+            </xpath>
+            <xpath expr="//field[@name='line_ids']" position="attributes">
+                <attribute name="readonly">
+                    fel_gt_state == 'certified' or state not in ('draft')
+                </attribute>
+                <attribute name="invisible">
+                    payment_state == 'invoicing_legacy' and move_type != 'entry'
+                </attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

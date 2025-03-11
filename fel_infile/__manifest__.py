@@ -9,7 +9,7 @@
     'website': 'http://aquih.com/',
     'depends': ['fel_gt'],
     'data': [
-        'views/account_view.xml',
+        #'views/account_view.xml',
     ],
     'demo': [],
     'installable': True,

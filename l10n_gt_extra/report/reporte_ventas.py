@@ -203,7 +203,9 @@ class ReporteVentas(models.AbstractModel):
                 l['numero'] = l['facturas'][0] + ' al ' + l['facturas'][-1]
 
             lineas = sorted(lineas_resumidas.values(), key=lambda l: str(l['establecimiento'][0])+l['tipo']+str(l['fecha']))
-        return {'lineas': lineas, 'totales': totales, 'totals_establishments': totals_establishments_list, 'resumido': datos['resumido']}
+        res = {'lineas': lineas, 'totales': totales, 'totals_establishments': totals_establishments_list, 'resumido': datos['resumido']}
+        logging.warning(res)
+        return res
 
     @api.model
     def _get_report_values(self, docids, data=None):
@@ -213,16 +215,6 @@ class ReporteVentas(models.AbstractModel):
     def get_report_values(self, docids, data=None):
         model = self.env.context.get('active_model')
         docs = self.env[model].browse(self.env.context.get('active_ids', []))
-
-        diario = self.env['account.journal'].browse(data['form']['diarios_id'][0])
-
-        for data_company in diario:
-            company_name = data_company.company_id.name
-            company_registry = data_company.company_id.company_registry
-            company_street = data_company.company_id.street
-            company_vat = data_company.company_id.vat
-            company_logo = data_company.company_id.logo
-
         return {
             'doc_ids': self.ids,
             'doc_model': model,

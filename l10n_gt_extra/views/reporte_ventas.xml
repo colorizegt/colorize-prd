@@ -98,8 +98,8 @@
 
             </div>
             <t t-call="web.external_layout">
-                <div class="page" style="font-family:'Lucida Sans Unicode', 'Lucida Grande', sans-serif; ">
-                    <t t-set="result" t-value="lineas(data)"/>
+                <t t-set="result" t-value="lineas(data)"/>
+                <div class="page" style="font-family:'Lucida Sans Unicode', 'Lucida Grande', sans-serif; " t-if="result">
 
                     <table class="table table-sm" style="font-size: 10px !important;">
                         <thead style="border: 1px solid #000; ">
@@ -149,51 +149,6 @@
                             <t t-set="base_subtotal" t-value="0"/>
                             <t t-set="total_subtotal" t-value="0"/>
                             <tr t-foreach="result['lineas']" t-as="l" style="font-size: 10px !important; page-break-inside: avoid;">
-                                <t t-if="l['establecimiento'][0] != previous_establishment">
-                                    <t t-if="i != 1">
-                                        <tr>
-                                            <td class="text-end" style="border: 1px solid #000;" colspan="7">
-                                                <strong>Total establecimiento</strong>
-                                            </td>
-                                            <td class="text-end" style="border: 1px solid #000;">
-                                                <span t-esc="result['totals_establishments'][previous_establishment]['importacion']" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                            </td>
-                                            <td class="text-end" style="border: 1px solid #000;">
-                                                <span t-esc="result['totals_establishments'][previous_establishment]['compra']" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                            </td>
-                                            <td class="text-end" style="border: 1px solid #000;">
-                                                <span t-esc="result['totals_establishments'][previous_establishment]['servicio']" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                            </td>
-                                            <td class="text-end" style="border: 1px solid #000;">
-                                                <span t-esc="result['totals_establishments'][previous_establishment]['total_extento']" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                            </td>
-                                            <td class="text-end" style="border: 1px solid #000;">
-                                                <span t-esc="result['totals_establishments'][previous_establishment]['iva']" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                            </td>
-                                            <td class="text-end" style="border: 1px solid #000;">
-                                                <span t-esc="result['totals_establishments'][previous_establishment]['base']" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                            </td>
-                                            <td class="text-end" style="border: 1px solid #000;">
-                                                <span t-esc="result['totals_establishments'][previous_establishment]['total']" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                            </td>
-                                            <t t-set="importacion_subtotal" t-value="0"/>
-                                            <t t-set="compra_subtotal" t-value="0"/>
-                                            <t t-set="servicio_subtotal" t-value="0"/>
-                                            <t t-set="total_extento_subtotal" t-value="0"/>
-                                            <t t-set="iva_subtotal" t-value="0"/>
-                                            <t t-set="base_subtotal" t-value="0"/>
-                                            <t t-set="total_subtotal" t-value="0"/>
-                                            <t t-set="j" t-value="j+1"/>
-                                        </tr>
-                                    </t>
-                                    <tr>
-                                        <td class="text-center" style="border: 1px solid #000;" colspan="14">
-                                            <strong>Establecimiento: <span t-esc="l['establecimiento'][0]"/></strong>
-                                        </td>
-                                        <t t-set="j" t-value="j+1"/>
-                                    </tr>
-                                    <t t-set="previous_establishment" t-value="l['establecimiento'][0]"/>
-                                </t>
 
                                 <td style="border: 1px solid #000; ">
                                     <span t-esc="i"/>
@@ -261,106 +216,9 @@
                                 <t t-set="iva_subtotal" t-value="iva_subtotal + l['iva']"/>
                                 <t t-set="base_subtotal" t-value="base_subtotal + l['base']"/>
                                 <t t-set="total_subtotal" t-value="total_subtotal + l['total']"/>
-                                <!--<t t-set="j" t-value="j+1"/>
-                                <t t-if="j == 27">
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td>
-                                            Van
-                                        </td>
-                                        <td class="text-end">
-                                            <span t-esc="importacion_subtotal" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                        </td>
-                                        <td class="text-end">
-                                            <span t-esc="compra_subtotal" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                        </td>
-                                        <td class="text-end">
-                                            <span t-esc="servicio_subtotal" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                        </td>
-                                        <td class="text-end">
-                                            <span t-esc="total_extento_subtotal" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                        </td>
-                                        <td class="text-end">
-                                            <span t-esc="iva_subtotal" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                        </td>
-                                        <td class="text-end">
-                                            <span t-esc="base_subtotal" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                        </td>
-                                        <td class="text-end">
-                                            <span t-esc="total_subtotal" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                        </td>
-                                        <t t-set="j" t-value="2"/>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td>
-                                            Vienen
-                                        </td>
-                                        <td class="text-end">
-                                            <span t-esc="importacion_subtotal" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                        </td>
-                                        <td class="text-end">
-                                            <span t-esc="compra_subtotal" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                        </td>
-                                        <td class="text-end">
-                                            <span t-esc="servicio_subtotal" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                        </td>
-                                        <td class="text-end">
-                                            <span t-esc="total_extento_subtotal" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                        </td>
-                                        <td class="text-end">
-                                            <span t-esc="iva_subtotal" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                        </td>
-                                        <td class="text-end">
-                                            <span t-esc="base_subtotal" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                        </td>
-                                        <td class="text-end">
-                                            <span t-esc="total_subtotal" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                        </td>
-                                    </tr>
-                                </t>-->
+                               
                             </tr>
                         </tbody>
-                        <t t-if="result['lineas']">
-                            <tbody>
-                                <tr>
-                                    <td class="text-end" style="border: 1px solid #000;" colspan="7">
-                                            <strong>Total establecimiento</strong>
-                                    </td>
-                                    <td class="text-end" style="border: 1px solid #000;">
-                                        <span t-esc="result['totals_establishments'][previous_establishment]['importacion']" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                    </td>
-                                    <td class="text-end" style="border: 1px solid #000;">
-                                        <span t-esc="result['totals_establishments'][previous_establishment]['compra']" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                    </td>
-                                    <td class="text-end" style="border: 1px solid #000;">
-                                        <span t-esc="result['totals_establishments'][previous_establishment]['servicio']" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                    </td>
-                                    <td class="text-end" style="border: 1px solid #000;">
-                                        <span t-esc="result['totals_establishments'][previous_establishment]['total_extento']" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                    </td>
-                                    <td class="text-end" style="border: 1px solid #000;">
-                                        <span t-esc="result['totals_establishments'][previous_establishment]['iva']" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                    </td>
-                                    <td class="text-end" style="border: 1px solid #000;">
-                                        <span t-esc="result['totals_establishments'][previous_establishment]['base']" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                    </td>
-                                    <td class="text-end" style="border: 1px solid #000;">
-                                        <span t-esc="result['totals_establishments'][previous_establishment]['total']" t-options="{'widget': 'monetary', 'display_currency': user.company_id.currency_id}"/>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </t>
                         <tfoot style="display: table-row-group">
                             <tr style="font-size: 12px !important;">
                                 <td class="text-end" colspan="7">

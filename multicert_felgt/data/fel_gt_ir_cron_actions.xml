@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<odoo>
+
+  <record id="fel_gt_contigency_reprocess" model="ir.cron">
+    <field name="state">code</field>
+    <field name="code">model.process_fel_gt_all_contigency()</field>
+    <field name="interval_type">minutes</field>
+    <field name="model_id" ref="model_account_move"/>
+    <field name="user_id" ref="base.user_root"/>
+    <field name="name">Procesamiento de facturas en contingencia</field>
+    <field name="numbercall">-1</field>
+    <field name="priority">5</field>
+    <field name="doall">False</field>
+    <field name="active">True</field>
+    <field name="interval_number">10</field>
+  </record>
+
+</odoo>
