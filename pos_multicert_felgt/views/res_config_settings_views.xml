@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record model="ir.ui.view" id="pos_multicert_felgt.res_config_settings_inherit">
+        <field name="name">pos_multicert_felgt.res_config_settings_inherit</field>
+        <field name="model">res.config.settings</field>
+        <field name="active">True</field>
+        <field name="inherit_id" ref="point_of_sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form//app[@name='point_of_sale']" position="inside">
+                <field name="fel_gt_active" invisible="1"/>
+                <block title="Opciones Facturación Electrónica" groups="point_of_sale.group_pos_manager" id="pos_multicert_felgt_main_settings" invisible="not fel_gt_active">
+                    <setting id="fel_gt_show_logo" help="Mostrar logo de la empresa en ticket">
+                        <field name="fel_gt_show_logo"/>
+                    </setting>
+                    <setting id="fel_gt_show_qrcode" help="Mostrar codigo QR en ticket">
+                        <field name="fel_gt_show_qrcode"/>
+                    </setting>
+                    <setting id="fel_gt_size_qr_logo" help="Tamaño QR, en pixeles." invisible="fel_gt_show_qrcode == False">
+                        <field name="fel_gt_size_qr_logo"/>
+                    </setting>
+                    <setting id="fel_gt_show_fel_logo" help="Mostrar logo de FEL en ticket">
+                        <field name="fel_gt_show_fel_logo"/>
+                    </setting>
+                    <setting id="fel_gt_auto_check_invoice" help="Auto-check botón Factura">
+                        <field name="fel_gt_auto_check_invoice"/>
+                    </setting>
+                    <setting id="fel_gt_disable_download_invoice_pdf" help="Deshabilitar la descarga de la factura en PDF">
+                        <field name="fel_gt_disable_download_invoice_pdf"/>
+                    </setting>
+                    <setting id="fel_gt_default_customer" help="Cliente por Defecto en la Ordenes">
+                        <field name="fel_gt_default_customer"/>
+                    </setting>
+                    <setting id="fel_gt_custom_logo" help="Indique si quiere un utilizar el logo del punto de venta para el Ticket">
+                        <field name="fel_gt_custom_logo"/>
+                    </setting>
+                    
+                </block>
+                <block title="Opciones Contingencia Facturación Electronica" groups="point_of_sale.group_pos_manager" id="pos_multicert_felgt_contengency_settings" invisible="not fel_gt_active">
+                    <setting id="fel_gt_contingency_active" help="Habilitar Contingencia Para el Punto de Venta">
+                        <field name="fel_gt_contingency_active"/>
+                    </setting>
+                    <setting id="fel_gt_contingency_start_range" invisible="fel_gt_contingency_active == False" help="Número del Rango Inicial">
+                        <field name="fel_gt_contingency_start_range"/>
+                    </setting>
+                    <setting id="fel_gt_contingency_end_range" invisible="fel_gt_contingency_active == False" help="Número del Rango Final">
+                        <field name="fel_gt_contingency_end_range"/>
+                    </setting>
+                    <setting id="fel_gt_contingency_actual_number" invisible="fel_gt_contingency_active == False" help="Número de Contingencia Actual">
+                        <field name="fel_gt_contingency_actual_number"/>
+                    </setting>
+                </block>
+                <block title="Opciones Anulaciónes" groups="point_of_sale.group_pos_manager" id="pos_multicert_felgt_cancel_settings">
+                    <setting id="fel_gt_cancel_stock_picking" help="Indique si quiere cancelar el Albaran, al momento de anular la factura FEL.">
+                        <field name="fel_gt_cancel_stock_picking"/>
+                    </setting>
+                    <setting id="fel_gt_cancel_payment" help="Indique si quiere cancelar el Pago, al momento de anular la factura FEL.">
+                        <field name="fel_gt_cancel_payment"/>
+                    </setting>
+                    <setting id="fel_gt_cancel_order" help="Indique si quiere cancelar la orden, al momento de anular la factura FEL.">
+                        <field name="fel_gt_cancel_order"/>
+                    </setting>
+                    <setting id="fel_gt_force_refund_payment" help="Indique si quiere forzar la devolucion hacia pago.">
+                        <field name="fel_gt_force_refund_payment"/>
+                    </setting>
+                </block>
+                <block title="Opciones Visualización" groups="point_of_sale.group_pos_manager" id="pos_multicert_felgt_stock_settings" invisible="not fel_gt_active">
+                    <setting id="fel_gt_allow_open_cash_d" help="Habilitar abrir caja registradora.">
+                        <field name="fel_gt_allow_open_cash_d"/>
+                    </setting>
+                    <setting id="fel_gt_hide_product_info" help="Indique si quiere ocultar la información del producto en el punto de venta.">
+                        <field name="fel_gt_hide_product_info"/>
+                    </setting>
+                    <setting id="fel_gt_show_stock_info" help="Indique si quiere mostrar la cantidad de stock en el punto de venta.">
+                        <field name="fel_gt_show_stock_info"/>
+                    </setting>
+                    <setting id="fel_gt_manage_stock_info" help="Indique que tipo de visualización de stock desea mostrar en el punto de venta." invisible="not fel_gt_show_stock_info">
+                        <field name="fel_gt_manage_stock_info"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

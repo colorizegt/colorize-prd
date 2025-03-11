@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="pos_multicert_felgt.ProductCard" t-inherit="point_of_sale.ProductCard" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('product-information-tag')]" position="replace">
+
+            <t t-if="!props.fel_gt_hide_product_info">
+                <div t-if="props.productInfo" class="product-information-tag" t-on-click.stop="props.onProductInfoClick">
+                    <i class="product-information-tag-logo fa fa-info" role="img" aria-label="Product Information" title="Product Information" />
+                </div>
+            </t>
+            
+            <div t-if="props.fel_gt_show_stock_info" class="position-absolute d-flex flex-column top-0 start-0 m-0 p-0">
+                <t t-set="orders_qty" t-value="props.order_product_qty[props.productId] || 0" />
+                <span t-if="props.product_type === 'product' and props.fel_gt_manage_stock_info != 'available_qty'" t-attf-class="ms-1 mt-1 badge {{(props.qty_available - orders_qty) &lt; 0 ? 'bg-danger' : 'bg-success' }}" >
+                    <span class="text-light" t-esc="props.qty_available - orders_qty"/>
+                </span>
+                <span t-if="props.product_type === 'product' and props.fel_gt_manage_stock_info != 'on_hand_qty'" t-attf-class="ms-1 mt-1 badge {{(props.virtual_available - orders_qty) &lt; 0 ? 'bg-danger' : 'bg-success' }}" >
+                    <span class="text-light" t-esc="props.virtual_available - orders_qty" />
+                </span>
+            </div>
+        </xpath>
+    </t>
+</templates>

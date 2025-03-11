@@ -19,7 +19,7 @@ class AccountPayment(models.Model):
     descripcion = fields.Char(string="Descripción")
     numero_viejo = fields.Char(string="Numero Viejo")
     nombre_impreso = fields.Char(string="Nombre Impreso")
-    no_negociable = fields.Boolean(string="No Negociable", default=True)
+    no_negociable = fields.Boolean(string="No Negociable ", default=True)
     anulado = fields.Boolean('Anulado')
     fecha_anulacion = fields.Date('Fecha anulación')
 

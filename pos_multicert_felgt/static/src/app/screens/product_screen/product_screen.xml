@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="pos_multicert_felgt.ProductsWidget" t-inherit="point_of_sale.ProductsWidget" t-inherit-mode="extension">
+        <xpath expr="//ProductCard" position="attributes">
+            <attribute name="qty_available" >product.on_hand_stock</attribute>
+            <attribute name="virtual_available" >product.available_stock</attribute>
+            <attribute name="product_type" >product.type</attribute>
+            <attribute name="order_product_qty" >pos.order_product_qty</attribute>
+            <attribute name="fel_gt_manage_stock_info" >pos.config.fel_gt_manage_stock_info</attribute>
+            <attribute name="fel_gt_show_stock_info" >pos.config.fel_gt_show_stock_info</attribute>
+            <attribute name="fel_gt_hide_product_info" >pos.config.fel_gt_hide_product_info</attribute>
+        </xpath>
+    </t>
+
+    <t t-name="pos_multicert_felgt.ActionpadWidget" t-inherit="point_of_sale.ActionpadWidget" t-inherit-mode="extension" owl="1">
+        <xpath expr="//button[hasclass('pay')]" position="after">
+            <t t-if='pos.config.fel_gt_allow_open_cash_d'>
+                <style>
+                    .pos .actionpad .button.pay {
+                        height: 108px;
+                    }
+                </style>
+                <button class='button js_cashdrawer btn btn-light py-3 text-center rounded-0 border-bottom align-items-center justify-content-center' t-on-click="() => this.pos.openCashbox()">
+                    <i class='fa fa-archive' /> Abrir Caja
+                </button>
+            </t>
+        </xpath>
+    </t>
+
+</templates>

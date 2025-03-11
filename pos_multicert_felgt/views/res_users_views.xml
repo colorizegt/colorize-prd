@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="pos_multicert_felgt_res_users_view_form" model="ir.ui.view">
+            <field name="name">pos_multicert_felgt_res_users_view_form</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <field name="fel_gt_invoice_default_type" position="after">
+                    <field name="fel_gt_cancel_in_pos"/>
+                    <field name="fel_gt_motive_cancel_in_pos"/>
+                </field>
+            </field>
+    </record>
+
+</odoo>

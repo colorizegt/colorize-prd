@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+
+		<menuitem name="FE-SAT" id="multicert_fel_gt_menu_root" sequence="4" web_icon="multicert_felgt,static/src/img/sat_logo.png" groups="multicert_felgt.felgt_group_manager"/>
+
+
+		<menuitem name="Documentos Electrónicos" id="multicert_fel_gt_menu_docs_root" parent="multicert_fel_gt_menu_root" sequence="1" />
+
+
+        <record id="view_multicert_felgt_account_move_tree" model="ir.ui.view">
+            <field name="name">view_multicert_felgt_account_move_tree</field>
+            <field name="model">account.move</field>
+            <field name="arch" type="xml">
+                <tree string="Facturas"
+                      js_class="account_tree"
+                      decoration-info="fel_gt_state == 'pending'"
+                      decoration-muted="fel_gt_state == 'cancel'"
+                      decoration-danger="fel_gt_state == 'sat_validation_error'"
+                      decoration-warning="fel_gt_state == 'contingency'"
+                      expand="context.get('expand', False)"
+                      sample="1"
+                      create="false"
+                      edit="false"
+                      delete="false">
+                    <field name="made_sequence_hole" column_invisible="True"/>
+                    <field name="fel_gt_invoice_type"/>
+                    <field name="fel_gt_serie"/>
+                    <field name="fel_gt_dte_number"/>
+                    <field name="fel_gt_uuid" column_invisible="context.get('hide_fel_gt_colums')"/>
+                    <field name="fel_gt_dte_issue_date" column_invisible="context.get('hide_fel_gt_colums')"/>
+                    <field name="invoice_partner_display_name" groups="base.group_user" string="Cliente" />
+                    <field name="invoice_date" optional="show" readonly="state != 'draft'" string="Fecha"/>
+                    <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}" optional="hide"/>
+                    <field name="company_id" groups="!base.group_multi_company" column_invisible="True"/>
+                    <field name="amount_total_signed" string="Total" sum="Total" decoration-bf="1" optional="show"/>
+                    <field name="currency_id" optional="hide" readonly="state in ['cancel', 'posted']"/>
+                    <field name="company_currency_id" column_invisible="True"/>
+                    <field name="payment_state"
+                           string="Pago"
+                           widget="badge"
+                           decoration-danger="payment_state == 'not_paid'"
+                           decoration-warning="payment_state in ('partial', 'in_payment')"
+                           decoration-success="payment_state in ('paid', 'reversed')"
+                           invisible="payment_state == 'invoicing_legacy' or state != 'posted' or move_type == 'entry'"
+                           optional="show"/>
+                    <field name="state" widget="badge" decoration-success="state == 'posted'" decoration-info="state == 'draft'" optional="show"/>
+                    <field name="move_type" column_invisible="context.get('default_move_type', True)"/>
+                    <field decoration-danger="fel_gt_state in ('sat_validation_error','cancel')" decoration-info="fel_gt_state == 'pending'" decoration-success="fel_gt_state == 'certified'" decoration-warning="fel_gt_state == 'contingency'" name="fel_gt_state" widget="badge"/>
+                    <button invisible="not fel_gt_uuid" name="generate_fel_gt_certifier_pdf" type="object" class="oe_highlight" icon="fa-file-pdf-o" string="DESCARGAR"/>
+                    <field invisible="not fel_gt_uuid" name="fel_gt_sat_link" text="VER EN SAT" widget="url"/>
+
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_multicert_fel_gt_all_docs">
+			<field name="name">Todos los Documentos</field>
+			<field name="res_model">account.move</field>
+			<field name="view_mode">tree,form</field>
+            <field name="domain">[('fel_gt_state', 'in', ('certified', 'sat_validation_error', 'contingency', 'cancel'))]</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('view_multicert_felgt_account_move_tree')}), 
+                (0, 0, {'view_mode': 'form', 'view_id': ref('account.view_move_form')})]"/>
+		</record>
+
+        <menuitem name="Todos los Documentos" id="multicert_fel_gt_menu_all_docs" parent="multicert_fel_gt_menu_docs_root" action="action_multicert_fel_gt_all_docs" sequence="1"/>
+
+        <record model="ir.actions.act_window" id="action_multicert_fel_gt_certified_docs">
+			<field name="name">Documentos Certificados</field>
+			<field name="res_model">account.move</field>
+			<field name="view_mode">tree</field>
+            <field name="domain">[('fel_gt_state', '=', 'certified')]</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('view_multicert_felgt_account_move_tree')}), 
+                (0, 0, {'view_mode': 'form', 'view_id': ref('account.view_move_form')})]"/>
+		</record>
+
+        <menuitem name="Documentos Certificados" id="multicert_fel_gt_menu_cert_docs" parent="multicert_fel_gt_menu_docs_root" action="action_multicert_fel_gt_certified_docs" sequence="2"/>
+
+        <record model="ir.actions.act_window" id="action_multicert_fel_gt_sat_validation_error_docs">
+			<field name="name">Documentos con Error</field>
+			<field name="res_model">account.move</field>
+			<field name="view_mode">tree</field>
+            <field name="domain">[('fel_gt_state', '=', 'sat_validation_error')]</field>
+            <field name="context">{'hide_fel_gt_colums': True}</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('view_multicert_felgt_account_move_tree')}), 
+                (0, 0, {'view_mode': 'form', 'view_id': ref('account.view_move_form')})]"/>
+		</record>
+
+        <menuitem name="Documentos con Error" id="multicert_fel_gt_menu_error_docs" parent="multicert_fel_gt_menu_docs_root" action="action_multicert_fel_gt_sat_validation_error_docs" sequence="3"/>
+
+        <record model="ir.actions.act_window" id="action_multicert_fel_gt_contingency_docs">
+			<field name="name">Documentos en Contingencia</field>
+			<field name="res_model">account.move</field>
+			<field name="view_mode">tree</field>
+            <field name="domain">[('fel_gt_state', '=', 'contingency')]</field>
+            <field name="context">{'hide_fel_gt_colums': True}</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('view_multicert_felgt_account_move_tree')}), 
+                (0, 0, {'view_mode': 'form', 'view_id': ref('account.view_move_form')})]"/>
+		</record>
+
+        <menuitem name="Documentos en Contingencia" id="multicert_fel_gt_menu_contingency_docs" parent="multicert_fel_gt_menu_docs_root" action="action_multicert_fel_gt_contingency_docs" sequence="4"/>
+
+        <record model="ir.actions.act_window" id="action_multicert_fel_gt_cancel_docs">
+			<field name="name">Documentos Cancelados</field>
+			<field name="res_model">account.move</field>
+			<field name="view_mode">tree</field>
+            <field name="domain">[('fel_gt_state', '=', 'cancel')]</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('view_multicert_felgt_account_move_tree')}), 
+                (0, 0, {'view_mode': 'form', 'view_id': ref('account.view_move_form')})]"/>
+		</record>
+
+        <menuitem name="Documentos Cancelados" id="multicert_fel_gt_menu_cancel_docs" parent="multicert_fel_gt_menu_docs_root" action="action_multicert_fel_gt_cancel_docs" sequence="5"/>
+
+        <menuitem name="Solicitudes de API" id="multicert_fel_gt_menu_api_request_root" parent="multicert_fel_gt_menu_root" sequence="2" />
+
+        <menuitem action="action_fel_gt_tools_log_xml_sent" groups="multicert_felgt.felgt_group_manager" id="fel_gt_tools_api_request_menu" name="Solicitudes API FEL" parent="multicert_fel_gt_menu_api_request_root"/>
+        
+        <menuitem name="Configuración" id="multicert_fel_gt_menu_config_root" parent="multicert_fel_gt_menu_root" sequence="4" />
+
+        <record id="action_fel_gt_account_journal_form" model="ir.actions.act_window">
+            <field name="name">Diarios</field>
+            <field name="res_model">account.journal</field>
+            <field name="domain">[('fel_gt_active', '=', True)]</field>
+            <field name="context">{'default_fel_gt_active': True}</field>
+            <field name="view_mode">tree,kanban,form</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('account.view_account_journal_tree')}), 
+                (0, 0, {'view_mode': 'kanban', 'view_id': ref('account.account_journal_view_kanban')}), 
+                (0, 0, {'view_mode': 'form', 'view_id': ref('account.view_account_journal_form')})]"/>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Agregar un diario
+              </p><p>
+                Un diario se utiliza para registrar transacciones de todos los datos contables
+                relacionados con el negocio diario.
+              </p>
+            </field>
+        </record>
+
+        <menuitem name="Diarios" id="multicert_fel_gt_menu_journal_config" parent="multicert_fel_gt_menu_config_root" action="action_fel_gt_account_journal_form" sequence="1"/>
+
+	</data>
+</odoo>

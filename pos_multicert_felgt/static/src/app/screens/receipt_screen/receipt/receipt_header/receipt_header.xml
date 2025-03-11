@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="pos_multicert_felgt.ReceiptHeader" t-inherit="point_of_sale.ReceiptHeader" t-inherit-mode="extension">
+        <xpath expr="//img[hasclass('pos-receipt-logo')]" position="replace">
+        </xpath>
+        <xpath expr="//div[hasclass('pos-receipt-contact')]" position="replace">       
+            <t t-if="props.data.fel_gt_show_logo">
+                <div class="pos-logo pos-receipt-center-align" style="max-height: 100px;width:100%;">
+                    <t t-if="props.data.fel_gt_custom_logo">
+                        <t t-if="props.data.fel_gt_pos_custom_logo">
+                            <img t-attf-src="/web/image?model=pos.config&amp;field=fel_gt_pos_custom_logo&amp;id={{props.data.fel_gt_pos_custom_logo}}&amp;unique=1" 
+                                 alt="Logo" style="display: block; margin: 0 auto; max-height: 80px;"/>
+                        </t>
+                    </t>
+                    <t t-else="">
+                        <img t-attf-src="/web/image?model=res.company&amp;id={{props.data.company.id}}&amp;field=logo" 
+                                 alt="Logo" style="display: block; margin: 0 auto; max-height: 80px; "/>
+                    </t>
+                </div>
+            </t>     
+        </xpath>
+    </t>
+</templates>

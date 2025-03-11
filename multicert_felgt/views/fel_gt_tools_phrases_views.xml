@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="fel_gt_tools_phrases_tree" model="ir.ui.view">
+        <field name="name">fel_gt_tools_phrases_tree</field>
+        <field name="active">True</field>
+        <field name="model">fel_gt.tools.phrases</field>
+        <field name="arch" type="xml">
+            <tree string="Frases FEL">
+                <field name="name"/>
+                <field name="description"/>
+                <field name="scenario_code"/>
+                <field name="phrase_type"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_fel_gt_tools_phrases" model="ir.actions.act_window">
+        <field name="name">Frases Fel</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">fel_gt.tools.phrases</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">Click para agregar frases FEL.
+            </p>
+        </field>
+    </record>
+
+    <menuitem action="action_fel_gt_tools_phrases" id="menu_fel_gt_tools_phrases" parent="account.account_account_menu" sequence="11"/>
+
+</odoo>
