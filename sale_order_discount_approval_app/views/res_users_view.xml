@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<data>
+		<record id="res_users_form_view" model="ir.ui.view">
+			<field name="name">Discount Control</field>
+			<field name="model">res.users</field>
+			<field name="inherit_id" ref="base.view_users_form"/>
+			<field name="arch" type="xml">
+				<xpath expr="//page[2]" position="after">
+					<page string="Discount Control" groups="sale_order_discount_approval_app.discount_approval_manager">
+						<group>
+							<group>
+								<label for="allow_discount"/>
+								<div class="o_row">
+									<field name="allow_discount"/><span>%%</span>
+								</div>
+							</group>
+						</group>
+					</page>
+				</xpath>
+			</field>
+		</record>
+	</data>
+</odoo>
