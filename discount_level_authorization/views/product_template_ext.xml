@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="discount_reason_view_pos_pos_form_extend" model="ir.ui.view">
+        <field name="model">pos.order</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
+        <field name="arch" type="xml">
+            <field name="pos_reference" position="after">
+                <field name="discount_reason" readonly="1" invisible="1" />
+                <field name="discount_reason_file" filename="discount_reason_file_name" invisible="1" readonly="1" />
+                <field name="discount_reason_file_name" invisible="1" />
+            </field>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="product_template_form_view">
+        <field name="name">product.product.template.form.extend</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='general_information']//group[@name='group_general']" position="inside">
+                <label for="allow_discount"/>
+                <div name="allow_discount" class="o_row">
+                    <field name="allow_discount"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+
