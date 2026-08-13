@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+<!--    <t t-name="CustomOrderline" t-inherit="point_of_sale.Orderline" t-inherit-mode="extension" owl="1">-->
+<!--        <xpath expr="//ul[hasclass('info-list')]" position="after">-->
+<!--            <ul class="info-list info-extra">-->
+<!--                <li t-if="props.line.discount_value">-->
+<!--                    With a-->
+<!--                <b><t t-esc="env.pos.format_currency(props.line.discount_value)"/></b> discount amount-->
+<!--                </li>-->
+<!--            </ul>-->
+<!--        </xpath>-->
+<!--    </t>-->
+
+</templates>

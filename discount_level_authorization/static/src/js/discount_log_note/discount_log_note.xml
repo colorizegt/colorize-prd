@@ -1,0 +1,29 @@
+<templates>
+    <t t-name="chris.discountLogNote">
+        <div class="modal fade show d-block">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title"><b>Add Discount Note</b></h4>
+                        <button type="button" class="btn-close" t-on-click="props.close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h4><b>Please mention Discount Reason:</b></h4>
+                        <p>
+                            <span><textarea placeholder="Discount Reason" name="chris_discount_reason" t-on-change="onchangeDiscountReasonText" t-att-value="discount_reason" /></span>
+                            <span><label><b>Discount Reason File: </b><input type="file" name="discount-reason-file" t-on-change="onchangeDiscountReason" /></label></span>
+                        </p><br />
+                        <h4><b>Please select discount type:</b></h4>
+                        <p style="margin-bottom: 0px">
+                            <button type="button" class="btn btn-primary" t-on-click="applyFixedDiscount">Amount</button>
+                            <button type="button" class="btn btn-primary" t-on-click="applyPercentageDiscount" style="margin-left: 10px">Percentage</button>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" t-on-click="props.close">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>
