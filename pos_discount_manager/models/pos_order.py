@@ -21,17 +21,16 @@ class PosOrder(models.Model):
         copy=False,
     )
 
-    @classmethod
-    def _order_fields(cls, ui_order):
+    def _order_fields(self, ui_order):
         vals = super()._order_fields(ui_order)
 
         if ui_order.get("discount_authorized"):
             vals["discount_authorized"] = True
 
             if ui_order.get("discount_manager_id"):
-                vals["discount_manager_id"] = ui_order[
-                    "discount_manager_id"
-                ]
+                vals["discount_manager_id"] = (
+                    ui_order["discount_manager_id"]
+                )
 
             vals["discount_authorized_at"] = fields.Datetime.now()
 
