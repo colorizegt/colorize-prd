@@ -5,31 +5,43 @@ import { PaymentScreen } from "@point_of_sale/app/screens/payment_screen/payment
 import { _t } from "@web/core/l10n/translation";
 import { NumberPopup } from "@point_of_sale/app/utils/input_popups/number_popup";
 import { ErrorPopup } from "@point_of_sale/app/errors/popups/error_popup";
+import { useService } from "@web/core/utils/hooks";
 
 patch(PaymentScreen.prototype, {
+    setup() {
+        super.setup(...arguments);
+
+        this.orm = useService("orm");
+    },
 
     async _finalizeValidation() {
-
         const order = this.pos.get_order();
         const orderlines = order.get_orderlines();
-
         const cashier = this.pos.get_cashier();
 
         const employeeDiscountLimit = cashier?.limited_discount || 0;
         const employeeName = cashier?.name || "";
 
+        // Check whether any order line exceeds the cashier's limit.
         const discountExceeded = orderlines.some(
             (line) => line.discount > employeeDiscountLimit
         );
 
         if (discountExceeded) {
+            console.log("=== POS DISCOUNT MANAGER DEBUG ===");
+            console.log("Cashier:", cashier);
+            console.log(
+                "Cashier discount limit:",
+                employeeDiscountLimit
+            );
 
             const { confirmed, payload } = await this.popup.add(
                 NumberPopup,
                 {
                     title: _t(
-                        `${employeeName}, your discount is over the limit.\n` +
-                        "Manager PIN for Approval"
+                        employeeName +
+                        ", your discount is over the limit.\n" +
+                        "Enter Manager PIN for Approval"
                     ),
                     isPassword: true,
                 }
@@ -39,48 +51,44 @@ patch(PaymentScreen.prototype, {
                 return false;
             }
 
-            console.log("=== POS DISCOUNT MANAGER DEBUG ===");
-            console.log("Cashier:", cashier);
             console.log("Entered PIN:", payload);
-            console.log("HR employees:", this.pos.hr_employee);
 
-            console.log("=== POS DISCOUNT MANAGER DEBUG 2 ===");
+            try {
+                const valid = await this.orm.call(
+                    "hr.employee",
+                    "validate_discount_manager_pin",
+                    [payload]
+                );
 
-            console.log(
-                "HR employees length:",
-                this.pos.hr_employee.length
-            );
-
-            this.pos.hr_employee.forEach((employee, index) => {
                 console.log(
-                    "EMPLOYEE",
-                     index,
-                    "ID:", employee.id,
-                    "NAME:", employee.name,
-                    "PIN:", employee.pin,
-                    "PIN TYPE:", typeof employee.pin,
-                    "DISCOUNT MANAGER:", employee.discount_manager,
-                    "DISCOUNT MANAGER TYPE:", typeof employee.discount_manager,
-                    "LIMIT:", employee.limited_discount
-                        );
-                });
+                    "Manager PIN validation result:",
+                    valid
+                );
 
-console.log("Entered PIN:", payload);
-console.log("Entered PIN TYPE:", typeof payload);
-            const manager = this.pos.hr_employee.find(
-                (employee) =>
-                    employee.discount_manager === true &&
-                    employee.pin &&
-                    employee.pin === payload
-            );
+                if (!valid) {
+                    await this.popup.add(ErrorPopup, {
+                        title: _t("Manager Restricted Your Discount"),
+                        body: _t(
+                            employeeName +
+                            ", the Manager PIN is incorrect."
+                        ),
+                    });
 
-            console.log("Manager found:", manager);
+                    return false;
+                }
 
-            if (!manager) {
+                console.log("Manager PIN accepted.");
+
+            } catch (error) {
+                console.error(
+                    "Error validating manager PIN:",
+                    error
+                );
+
                 await this.popup.add(ErrorPopup, {
-                    title: _t("Manager Approval Required"),
+                    title: _t("Authorization Error"),
                     body: _t(
-                        `${employeeName}, the Manager PIN is incorrect.`
+                        "The manager PIN could not be validated."
                     ),
                 });
 
@@ -88,6 +96,8 @@ console.log("Entered PIN TYPE:", typeof payload);
             }
         }
 
-        return await super._finalizeValidation(...arguments);
+        this.currentOrder.finalized = true;
+
+        await super._finalizeValidation(...arguments);
     },
 });
