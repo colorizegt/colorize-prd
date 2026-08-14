@@ -9,6 +9,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='job_id']" position="after">
                 <field name="limited_discount"/>
+                <field name="discount_manager"/>
             </xpath>
         </field>
     </record>

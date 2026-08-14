@@ -28,3 +28,7 @@ class HrEmployee(models.Model):
     limited_discount = fields.Integer(string="Discount Limit",
                                       help="Provide discount limit to each "
                                            "employee")
+    discount_manager = fields.Boolean(
+    string="Can Approve Discounts",
+    help="Allow this employee to approve discounts above the salesperson limit."
+)
