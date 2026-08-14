@@ -28,7 +28,7 @@ patch(PaymentScreen.prototype, {
                         if(confirmed){
                          var output = this.pos.employees.filter(    (obj) => obj.discount_manager && obj.pin);
                           var pin = output.length ? output[0].pin : false;
-                         if (pin && Sha1.hash(payload) == pin) {
+                         if (pin && payload == pin) {
                            this.pos.showScreen(this.nextScreen);
                             }
                             else {
