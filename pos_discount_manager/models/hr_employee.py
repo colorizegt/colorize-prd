@@ -18,11 +18,11 @@
 #    If not, see <http://www.gnu.org/licenses/>.
 #
 #############################################################################
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class HrEmployee(models.Model):
-    """Add field into hr employee"""
+    """Add discount management fields to hr.employee."""
     _inherit = 'hr.employee'
 
     limited_discount = fields.Integer(
@@ -34,3 +34,17 @@ class HrEmployee(models.Model):
         string="Can Approve Discounts",
         help="Allow this employee to approve discounts above the salesperson limit."
     )
+
+    @api.model
+    def validate_discount_manager_pin(self, pin):
+        """Validate a manager PIN for POS discount approval."""
+
+        manager = self.search([
+            ('discount_manager', '=', True),
+            ('pin', '!=', False),
+        ], limit=1)
+
+        if not manager:
+            return False
+
+        return manager._check_pin(pin)
