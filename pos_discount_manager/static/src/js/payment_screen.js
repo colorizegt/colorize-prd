@@ -7,13 +7,9 @@ import { NumberPopup } from "@point_of_sale/app/utils/input_popups/number_popup"
 import { ErrorPopup } from "@point_of_sale/app/errors/popups/error_popup";
 
 patch(PaymentScreen.prototype, {
-    /**
-     * Validate discount limits before finalizing the order.
-     *
-     * If any order line exceeds the cashier's discount limit,
-     * an authorized manager PIN is required.
-     */
+
     async _finalizeValidation() {
+
         const order = this.pos.get_order();
         const orderlines = order.get_orderlines();
 
@@ -22,12 +18,12 @@ patch(PaymentScreen.prototype, {
         const employeeDiscountLimit = cashier?.limited_discount || 0;
         const employeeName = cashier?.name || "";
 
-        // Check whether any order line exceeds the cashier's discount limit.
         const discountExceeded = orderlines.some(
             (line) => line.discount > employeeDiscountLimit
         );
 
         if (discountExceeded) {
+
             const { confirmed, payload } = await this.popup.add(
                 NumberPopup,
                 {
@@ -43,24 +39,19 @@ patch(PaymentScreen.prototype, {
                 return false;
             }
 
-            /*
-             * Find an employee who:
-             * 1. Is authorized to approve discounts.
-             * 2. Has a PIN configured.
-             * 3. Entered the correct PIN.
-             */
             console.log("=== POS DISCOUNT MANAGER DEBUG ===");
             console.log("Cashier:", cashier);
             console.log("Entered PIN:", payload);
-            console.log("POS employees:", this.pos.employees);
             console.log("HR employees:", this.pos.hr_employee);
-            
-            const manager = this.pos.employees.find(
+
+            const manager = this.pos.hr_employee.find(
                 (employee) =>
                     employee.discount_manager === true &&
                     employee.pin &&
                     employee.pin === payload
             );
+
+            console.log("Manager found:", manager);
 
             if (!manager) {
                 await this.popup.add(ErrorPopup, {
@@ -74,9 +65,6 @@ patch(PaymentScreen.prototype, {
             }
         }
 
-        /*
-         * Continue with the normal Odoo POS validation process.
-         */
         return await super._finalizeValidation(...arguments);
     },
 });
