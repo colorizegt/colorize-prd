@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class PosOrder(models.Model):
@@ -16,3 +16,18 @@ class PosOrder(models.Model):
         readonly=True,
         copy=False,
     )
+
+    @api.model
+    def _order_fields(self, ui_order):
+        """Load discount authorization information from POS."""
+        vals = super()._order_fields(ui_order)
+
+        if ui_order.get("discount_manager_id"):
+            vals["discount_manager_id"] = ui_order["discount_manager_id"]
+
+        if ui_order.get("discount_manager_name"):
+            vals["discount_manager_name"] = ui_order[
+                "discount_manager_name"
+            ]
+
+        return vals
