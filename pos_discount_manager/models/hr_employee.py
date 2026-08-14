@@ -47,4 +47,4 @@ class HrEmployee(models.Model):
         if not manager:
             return False
 
-        return manager._check_pin(pin)
+        return manager._verify_pin(pin)
