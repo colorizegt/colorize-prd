@@ -19,10 +19,12 @@
 #
 #############################################################################
 from odoo import api, fields, models
+import hashlib
 
 
 class HrEmployee(models.Model):
-    """Add discount management fields to hr.employee."""
+    """Extend hr.employee for POS discount authorization."""
+
     _inherit = 'hr.employee'
 
     limited_discount = fields.Integer(
@@ -37,17 +39,29 @@ class HrEmployee(models.Model):
 
     @api.model
     def validate_discount_manager_pin(self, pin):
-        """Validate a manager PIN for POS discount approval."""
+        """Validate PIN and return the manager who authorized the discount."""
 
         if not pin:
             return False
 
-        manager = self.search([
+        pin_hash = hashlib.sha1(
+            str(pin).encode('utf8')
+        ).hexdigest()
+
+        managers = self.sudo().search([
             ('discount_manager', '=', True),
             ('pin', '!=', False),
-        ], limit=1)
+        ])
 
-        if not manager:
-            return False
+        for manager in managers:
+            manager_pin_hash = hashlib.sha1(
+                manager.pin.encode('utf8')
+            ).hexdigest()
 
-        return str(pin) == str(manager.pin)
+            if manager_pin_hash == pin_hash:
+                return {
+                    'id': manager.id,
+                    'name': manager.name,
+                }
+
+        return False
