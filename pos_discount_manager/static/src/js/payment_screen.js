@@ -44,6 +44,29 @@ patch(PaymentScreen.prototype, {
             console.log("Entered PIN:", payload);
             console.log("HR employees:", this.pos.hr_employee);
 
+            console.log("=== POS DISCOUNT MANAGER DEBUG 2 ===");
+
+            console.log(
+                "HR employees length:",
+                this.pos.hr_employee.length
+            );
+
+            this.pos.hr_employee.forEach((employee, index) => {
+                console.log(
+                    "EMPLOYEE",
+                     index,
+                    "ID:", employee.id,
+                    "NAME:", employee.name,
+                    "PIN:", employee.pin,
+                    "PIN TYPE:", typeof employee.pin,
+                    "DISCOUNT MANAGER:", employee.discount_manager,
+                    "DISCOUNT MANAGER TYPE:", typeof employee.discount_manager,
+                    "LIMIT:", employee.limited_discount
+                        );
+                });
+
+console.log("Entered PIN:", payload);
+console.log("Entered PIN TYPE:", typeof payload);
             const manager = this.pos.hr_employee.find(
                 (employee) =>
                     employee.discount_manager === true &&
