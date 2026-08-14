@@ -39,6 +39,9 @@ class HrEmployee(models.Model):
     def validate_discount_manager_pin(self, pin):
         """Validate a manager PIN for POS discount approval."""
 
+        if not pin:
+            return False
+
         manager = self.search([
             ('discount_manager', '=', True),
             ('pin', '!=', False),
@@ -47,4 +50,4 @@ class HrEmployee(models.Model):
         if not manager:
             return False
 
-        return manager._verify_pin(pin)
+        return str(pin) == str(manager.pin)
