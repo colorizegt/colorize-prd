@@ -39,7 +39,6 @@
     'point_of_sale._assets_pos': [
         'pos_discount_manager/static/src/js/pos_store.js',
         'pos_discount_manager/static/src/js/payment_screen.js',
-        'pos_discount_manager/static/src/js/pos_order.js',
     ]
 },
     'images': ['static/description/banner.jpg'],
