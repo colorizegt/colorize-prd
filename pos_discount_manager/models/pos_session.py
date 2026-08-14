@@ -45,5 +45,5 @@ class PosSession(models.Model):
         """load hr.employee parameters"""
         result = super()._loader_params_hr_employee()
         result['search_params']['fields'].extend(
-            ['limited_discount'])
+            ['limited_discount', 'pin', 'discount_manager'])
         return result
