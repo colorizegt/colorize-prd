@@ -49,6 +49,12 @@ patch(PaymentScreen.prototype, {
              * 2. Has a PIN configured.
              * 3. Entered the correct PIN.
              */
+            console.log("=== POS DISCOUNT MANAGER DEBUG ===");
+            console.log("Cashier:", cashier);
+            console.log("Entered PIN:", payload);
+            console.log("POS employees:", this.pos.employees);
+            console.log("HR employees:", this.pos.hr_employee);
+            
             const manager = this.pos.employees.find(
                 (employee) =>
                     employee.discount_manager === true &&
