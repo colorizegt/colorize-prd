@@ -5,7 +5,6 @@ import { PaymentScreen } from "@point_of_sale/app/screens/payment_screen/payment
 import { _t } from "@web/core/l10n/translation";
 import { NumberPopup } from "@point_of_sale/app/utils/input_popups/number_popup";
 import { ErrorPopup } from "@point_of_sale/app/errors/popups/error_popup";
-import { rpc } from "@web/core/network/rpc";
 
 patch(PaymentScreen.prototype, {
 
@@ -14,6 +13,7 @@ patch(PaymentScreen.prototype, {
      * when the cashier exceeds their discount limit.
      */
     async _finalizeValidation() {
+
         const order = this.pos.get_order();
         const orderlines = order.get_orderlines();
         const cashier = this.pos.get_cashier();
@@ -21,11 +21,12 @@ patch(PaymentScreen.prototype, {
         const employeeDiscountLimit = cashier?.limited_discount || 0;
         const employeeName = cashier?.name || "";
 
-        // Check whether any order line exceeds the cashier's discount limit.
+        // Check if any order line exceeds the cashier's discount limit.
         const discountExceeded = orderlines.some(
             (line) => line.discount > employeeDiscountLimit
         );
 
+        // No approval required.
         if (!discountExceeded) {
             await super._finalizeValidation(...arguments);
             return;
@@ -45,15 +46,17 @@ patch(PaymentScreen.prototype, {
         }
 
         try {
-            // Validate the PIN on the Odoo server.
-            const validPin = await rpc(
-                "/web/dataset/call_kw/hr.employee/validate_discount_manager_pin",
-                {
-                    model: "hr.employee",
-                    method: "validate_discount_manager_pin",
-                    args: [payload],
-                    kwargs: {},
-                }
+            /*
+             * Validate the manager PIN on the Odoo server.
+             *
+             * Odoo 17 hashes employee PINs before sending them
+             * to the POS, therefore we must NOT compare the PIN
+             * directly with employee.pin in JavaScript.
+             */
+            const validPin = await this.env.services.orm.call(
+                "hr.employee",
+                "validate_discount_manager_pin",
+                [payload]
             );
 
             if (!validPin) {
@@ -68,11 +71,15 @@ patch(PaymentScreen.prototype, {
                 return false;
             }
 
-            // Manager PIN is valid. Continue with order validation.
+            // Manager authorization successful.
             await super._finalizeValidation(...arguments);
 
         } catch (error) {
-            console.error("Error validating manager PIN:", error);
+
+            console.error(
+                "Error validating manager PIN:",
+                error
+            );
 
             await this.popup.add(ErrorPopup, {
                 title: _t("Validation Error"),
