@@ -25,10 +25,12 @@ class HrEmployee(models.Model):
     """Add field into hr employee"""
     _inherit = 'hr.employee'
 
-    limited_discount = fields.Integer(string="Discount Limit",
-                                      help="Provide discount limit to each "
-                                           "employee")
+    limited_discount = fields.Integer(
+        string="Discount Limit",
+        help="Provide discount limit to each employee"
+    )
+
     discount_manager = fields.Boolean(
-    string="Can Approve Discounts",
-    help="Allow this employee to approve discounts above the salesperson limit."
-)
+        string="Can Approve Discounts",
+        help="Allow this employee to approve discounts above the salesperson limit."
+    )
