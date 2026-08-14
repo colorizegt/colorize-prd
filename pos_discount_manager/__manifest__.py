@@ -31,9 +31,10 @@
     'maintainer': "Cybrosys Techno Solutions",
     'website': "http://www.cybrosys.com",
     'depends': ['pos_discount', 'hr'],
-    'data': [
-        'views/hr_employee_views.xml',
-    ],
+   'data': [
+    'views/hr_employee_views.xml',
+    'views/pos_order_views.xml',
+],
    'assets': {
     'point_of_sale._assets_pos': [
         'pos_discount_manager/static/src/js/pos_store.js',
