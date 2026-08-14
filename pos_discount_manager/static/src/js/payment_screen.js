@@ -26,8 +26,8 @@ patch(PaymentScreen.prototype, {
                             isPassword: true
                         });
                         if(confirmed){
-                         var output = this.pos.employees.filter((obj) => obj.role == 'manager' && obj.user_id == session.uid);
-                         var pin = output[0].pin
+                         var output = this.pos.employees.filter(    (obj) => obj.discount_manager && obj.pin);
+                          var pin = output.length ? output[0].pin : false;
                          if (pin && Sha1.hash(payload) == pin) {
                            this.pos.showScreen(this.nextScreen);
                             }
