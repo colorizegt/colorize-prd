@@ -24,15 +24,7 @@ from odoo import models
 class PosSession(models.Model):
     """Inherited model POS Session for loading field in hr.employee into
        pos session.
-       
-       Methods:
-           _pos_ui_models_to_load(self):
-              to load model hr employee to pos session.
-              
-           _loader_params_hr_employee(self):
-              loads field limited_discount to pos session.
-
-       """
+    """
     _inherit = "pos.session"
 
     def _pos_ui_models_to_load(self):
@@ -42,8 +34,22 @@ class PosSession(models.Model):
         return result
 
     def _loader_params_hr_employee(self):
-        """load hr.employee parameters"""
+        """Load fields and authorized employees into POS session."""
         result = super()._loader_params_hr_employee()
-        result['search_params']['fields'].extend(
-            ['limited_discount', 'pin', 'discount_manager'])
+
+        result['search_params']['fields'].extend([
+            'limited_discount',
+            'pin',
+            'discount_manager',
+        ])
+
+        domain = result['search_params']['domain']
+
+        # Incluir empleados autorizados para aprobar descuentos
+        result['search_params']['domain'] = [
+            '|',
+            ('discount_manager', '=', True),
+            *domain,
+        ]
+
         return result
