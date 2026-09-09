@@ -1,39 +1,35 @@
-# -*- coding: utf-8 -*-
-#################################################################################
-# Author      : Rodrigo Contreras (<mrdc.tech>)
-# Copyright(c): 2024
-# All Rights Reserved.
-#
-# This module is copyright property of the author mentioned above.
-# You can`t redistribute it and/or modify it.
-#
-#################################################################################
-
 {
-    'name': "Guatemala - Contabilidad Extra",
-
-    'summary': """
-        Odoo module to generate reports and funcionalities for Guatemalan Accounting.
-        """,
-
+    'name': 'Guatemala - Reportes y funcionalidad extra',
+    'version': '19.0.1.0.0',
+    'category': 'Accounting/Localizations',
+    'summary': 'Reportes SAT y funcionalidad extra para Guatemala',
     'description': """
-        Odoo module to generate reports and funcionalities for Guatemalan Accounting.
-        """,
-    
-    'author': "Rodrigo Contreras",
-    'website': "https://mrdc.tech",
-    'category': 'Localization',
-    'version': '1.0.1',
-
-    'depends': ['base', 'l10n_gt', 'account_tax_python', 'product', 'account', 'account_accountant', 'l10n_latam_check'],
-    
+        Reportes requeridos por la SAT y otra funcionalidad extra para llevar 
+        una contabilidad en Guatemala.
+        
+        Incluye:
+        - Libro de Compras
+        - Libro de Ventas
+        - Libro Diario
+        - Libro Mayor
+        - Libro de Inventario
+        - Libro de Banco
+        - Partida Contable
+        - Validación de NIT
+        - Impuestos especiales (IDP, Timbre de Prensa, ISR)
+    """,
+    'author': 'José Rodrigo Fernández Menegazzo',
+    'website': 'https://www.tuempresa.com/',
+    'depends': [
+        'l10n_gt', 
+        'product',
+    ],
     'data': [
-        'security/ir.model.access.csv',
-        'data/l10n_gt_extra_paperformat.xml',
-        'data/l10n_gt_extra_taxes.xml',
-        'data/l10n_gt_extra_tax_withold.xml',
-        'data/l10n_gt_extra_currency.xml',
-        'views/l10_gt_extra_report.xml',
+        'data/l10n_gt_extra_base.xml',
+        'views/account_view.xml',
+        'views/res_partner_view.xml',
+        'views/product_views.xml',
+        'views/report.xml',
         'views/reporte_banco.xml',
         'views/reporte_partida.xml',
         'views/reporte_compras.xml',
@@ -41,33 +37,12 @@
         'views/reporte_inventario.xml',
         'views/reporte_diario.xml',
         'views/reporte_mayor.xml',
-        'views/reporte_financiero.xml',
-        'views/res_partner_view.xml',
-        'views/res_company_view.xml',
-        'views/product_views.xml',
-        'views/account_move_view.xml',
-        'views/res_config_settings_views.xml',
-        'views/account_journal_view.xml',
-        'views/account_payment_view.xml',
-        'views/l10n_gt_extra_report_config_views.xml',
-        'wizard/report_electronic_payment.xml',
-        'wizard/wizard_electronic_payment_views.xml',
-        'views/account_tax_views.xml',
-        'views/account_fiscal_position_views.xml',
-        'views/product_category_views.xml',
+        'views/l10n_gt_extra_view.xml',
+        'security/ir.model.access.csv',
     ],
-
-    'assets': {
-        'web.assets_backend': [
-            'l10n_gt_extra/static/src/js/action_manager.js',
-        ],
-    },
-
-    'external_dependencies': {
-        'python': ['pandas']
-    },
-
     'demo': [],
     'installable': True,
-    'license': 'OPL-1',
+    'application': False,
+    'auto_install': False,
+    'license': 'LGPL-3',
 }
