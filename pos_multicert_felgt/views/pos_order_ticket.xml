@@ -108,12 +108,12 @@
                                 NIT: <t t-esc='o.partner_id.vat'/>
                             </t>
                             <t t-else="">
-                                <t t-if="o.partner_id.dpi_number">
-                                    DPI: <t t-esc='o.partner_id.dpi_number'/>
+                                <t t-if="o.partner_id.fel_gt_dpi_number">
+                                    DPI: <t t-esc='o.partner_id.fel_gt_dpi_number'/>
                                 </t>
                                 <t t-else="">
-                                    <t t-if="o.partner_id.passport_number">
-                                        PASAPORTE: <t t-esc='o.partner_id.passport_number'/>
+                                    <t t-if="o.partner_id.fel_gt_passport_number">
+                                        PASAPORTE: <t t-esc='o.partner_id.fel_gt_passport_number'/>
                                     </t>
                                 </t>
                             </t>
@@ -273,7 +273,7 @@
                                         <img t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s'%('QR', o.account_move.fel_gt_link, 100, 100)" t-if="o.account_move.fel_gt_link"/>
                                     </t>
                                     <t t-else="">
-                                        <img t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s'%('QR', o.account_move.sat_link, 100, 100)" t-if="o.account_move.sat_link"/>
+                                        <img t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s'%('QR', o.account_move.fel_gt_sat_link, 100, 100)" t-if="o.account_move.fel_gt_sat_link"/>
                                     </t>
                                 </t>
                             </div>
