@@ -4,6 +4,10 @@ from odoo.tools.sql import column_exists, rename_column
 
 
 def migrate(cr, version):
+    if not version:
+        return
+
+    # Renombrar campos de pos_config
     if column_exists(cr, 'pos_config', 'fel_commercial_name'):
         rename_column(cr, 'pos_config', 'fel_commercial_name', 'fel_gt_commercial_name')
 
@@ -91,6 +95,7 @@ def migrate(cr, version):
     if column_exists(cr, 'pos_config', 'manage_stock_stock_info'):
         rename_column(cr, 'pos_config', 'manage_stock_stock_info', 'fel_gt_manage_stock_info')
     
+    # Renombrar campos de pos_order
     if column_exists(cr, 'pos_order', 'dte_invoice'):
         rename_column(cr, 'pos_order', 'dte_invoice', 'fel_gt_dte_invoice')
 
