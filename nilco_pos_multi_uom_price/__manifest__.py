@@ -1,4 +1,3 @@
-
 {
     'name': "POS Multi UoM Price",
     'summary': 'POS Price Per Unit of Measure',
@@ -13,18 +12,20 @@
     'website': "nilcotechnology@gmail.com",
     'currency': 'USD',
     'price': 25.6,
-    'depends': ['point_of_sale','stock','uom'],
+    'depends': ['point_of_sale', 'stock', 'uom'],
     'data': [
         'security/ir.model.access.csv',
         'views/product_view.xml',
     ],
     'images': [
-        'static/description/background.gif','static/description/**.png','static/description/images/logo.jpeg',
+        'static/description/background.gif',
+        'static/description/**.png',
+        'static/description/images/logo.jpeg',
     ],
     'installable': True,
     'auto_install': False,
     'assets': {
-        'point_of_sale._assets_pos':[
+        'point_of_sale._assets_pos': [
             'nilco_pos_multi_uom_price/static/src/js/multi_uom_price.js',
             'nilco_pos_multi_uom_price/static/src/js/models.js',
             'nilco_pos_multi_uom_price/static/src/xml/multi_uom_price.xml',
