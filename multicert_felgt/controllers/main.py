@@ -32,7 +32,6 @@ class ReportController(report.ReportController):
                 docids = [int(i) for i in docids.split(",")]
             if data.get("options"):
                 final_data = json.loads(data.get("options"))
-                final_data = json.loads(final_data)
             if data.get("context"):
                 
                 data["context"] = json.loads(data["context"])
