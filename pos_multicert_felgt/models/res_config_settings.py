@@ -19,7 +19,7 @@ class ResConfigSettings(models.TransientModel):
     fel_gt_custom_logo = fields.Boolean(related='pos_config_id.fel_gt_custom_logo', readonly=False)
 
     fel_gt_contingency_active = fields.Boolean(related='pos_config_id.fel_gt_contingency_active', readonly=False)
-    
+
     fel_gt_contingency_start_range = fields.Float(related="pos_config_id.invoice_journal_id.fel_gt_contingency_start_range", digits=(9, 0), readonly=False)
     fel_gt_contingency_end_range = fields.Float(related="pos_config_id.invoice_journal_id.fel_gt_contingency_end_range", digits=(9, 0), readonly=False)
     fel_gt_contingency_actual_number = fields.Float(related="pos_config_id.invoice_journal_id.fel_gt_contingency_actual_number", digits=(9, 0), readonly=False)
