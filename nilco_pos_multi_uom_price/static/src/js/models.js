@@ -43,7 +43,6 @@ patch(Orderline.prototype, {
     },
 
     set_uom(uom_id) {
-        // Acepta tanto [id, name] como {0: id, 1: name} o un número
         if (Array.isArray(uom_id)) {
             this.product_uom_id = uom_id;
         } else if (typeof uom_id === 'object' && uom_id !== null) {
