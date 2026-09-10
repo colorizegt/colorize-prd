@@ -223,7 +223,7 @@ class ResCompany(models.Model):
         
         headers = { "Content-Type": "application/json" }
         data = {
-                "Username": 'GT.'+self.company_id.vat.replace('-','').zfill(12)+'.'+self.fel_gt_digifact_user,
+                "Username": 'GT.'+self.vat.replace('-','').zfill(12)+'.'+self.fel_gt_digifact_user,
                 "Password": self.fel_gt_digifact_password,
             }
         try:
