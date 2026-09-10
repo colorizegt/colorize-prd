@@ -162,7 +162,7 @@
                                             <group>
                                                 <field name="apply_domain" invisible="read_right == False"/>
                                                 <field name="model_name" invisible="apply_domain != True or read_right == False"/>
-                                                <field name="domain" widget="terabits_domain"
+                                                <field name="domain" widget="domain"
                                                        options="{'model': 'model_name'}"
                                                        invisible="apply_domain != True or read_right == False"/>
                                             </group>
