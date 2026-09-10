@@ -1,22 +1,26 @@
-
 import logging
 
 from odoo import models, fields, api, _
 from itertools import groupby
 
 _logger = logging.getLogger(__name__)
-    
+
+
 class StockPicking(models.Model):
-    _inherit='stock.picking'
+    _inherit = 'stock.picking'
 
     def _prepare_stock_move_vals(self, first_line, order_lines):
         res = super()._prepare_stock_move_vals(first_line, order_lines)
-        res.update({'product_uom': first_line.product_uom_id.id})
+        product_uom = first_line.product_uom_id or first_line.product_id.uom_id
+        res.update({'product_uom': product_uom.id})
         return res
 
     def _create_move_from_pos_order_lines(self, lines):
         self.ensure_one()
-        lines_by_product = groupby(sorted(lines, key=lambda l: (l.product_id.id,l.product_uom_id.id)), key=lambda l: (l.product_id.id,l.product_uom_id.id))
+        lines_by_product = groupby(
+            sorted(lines, key=lambda l: (l.product_id.id, (l.product_uom_id or l.product_id.uom_id).id)),
+            key=lambda l: (l.product_id.id, (l.product_uom_id or l.product_id.uom_id).id)
+        )
         move_vals = []
         for dummy, olines in lines_by_product:
             order_lines = self.env['pos.order.line'].concat(*olines)
