@@ -8,7 +8,7 @@ from odoo.tools.safe_eval import safe_eval
 from odoo.http import request
 from datetime import datetime,timedelta
 from dateutil.relativedelta import relativedelta
-from odoo.addons.advanced_web_domain_widget.models.domain_prepare import prepare_domain_v2,compute_domain
+from .domain_prepare import prepare_domain_v2, compute_domain
 import ast
 
 class ir_rule(models.Model):
