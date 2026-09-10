@@ -148,7 +148,7 @@
                             <field required="fel_gt_certifier == 'infile' and fel_gt_infile_cert_method == 'signature'" name="fel_gt_infile_xml_url_signature" invisible="fel_gt_infile_cert_method != 'signature'"/>
                             <field required="fel_gt_certifier == 'infile'" name="fel_gt_infile_key_certificate"/>
                             <field required="fel_gt_certifier == 'infile' and fel_gt_infile_cert_method == 'signature'" name="fel_gt_infile_url_certificate" invisible="fel_gt_infile_cert_method != 'signature'"/>
-                            <field required="fel_gt_certifier == 'infile' and fel_gt_infile_cert_method == 'signature'" name="fel_gt_infile_url_anulation"/>
+                            <field required="fel_gt_certifier == 'infile' and fel_gt_infile_cert_method == 'signature'" name="fel_gt_infile_url_anulation" invisible="fel_gt_infile_cert_method != 'signature'"/>
                         </group>
                     </group>
                     <group string="Configuración Guatefacturas" invisible="fel_gt_certifier != 'guatefacturas'">
