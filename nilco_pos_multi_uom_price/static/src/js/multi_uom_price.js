@@ -2,6 +2,7 @@
 import { ProductScreen } from "@point_of_sale/app/screens/product_screen/product_screen";
 import { Component } from "@odoo/owl";
 import { SelectionPopup } from "@point_of_sale/app/utils/input_popups/selection_popup";
+import { patch } from "@web/core/utils/patch";
 
 export class UOMButton extends Component {
     static template = "point_of_sale.UOMButton";
@@ -11,7 +12,7 @@ export class UOMButton extends Component {
     }
 
     get selectedOrderline() {
-        return this.env.services.pos.get_order()?.get_selected_orderline();
+        return this.env.services.pos.getOrder()?.get_selected_orderline();
     }
 
     async onClick() {
@@ -24,7 +25,6 @@ export class UOMButton extends Component {
         const productTmplId = line.product.product_tmpl_id;
         const productUomPrices = pos.product_uom_price || {};
 
-        // Las claves del objeto son strings, así que comparamos con String()
         const productKey = Object.keys(productUomPrices).find(
             key => key === String(productTmplId)
         );
@@ -60,6 +60,7 @@ export class UOMButton extends Component {
     }
 }
 
+// En Odoo 19, se usa el registro de componentes
 ProductScreen.addControlButton({
     component: UOMButton,
     condition: function () {
