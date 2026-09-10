@@ -9,6 +9,7 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+
 class PosOrder(models.Model):
     _inherit = 'pos.order'
 
@@ -25,10 +26,10 @@ class PosOrder(models.Model):
         result = super(PosOrder, self)._order_fields(ui_order)
 
         result.update({
-            'fel_gt_has_contingency': ui_order['fel_gt_has_contingency'] if 'fel_gt_has_contingency' in ui_order else False,
-            'fel_gt_contingency_access_number': int(ui_order['fel_gt_contingency_access_number']) if 'fel_gt_contingency_access_number' in ui_order else False
+            'fel_gt_has_contingency': ui_order.get('fel_gt_has_contingency', False),
+            'fel_gt_contingency_access_number': int(ui_order['fel_gt_contingency_access_number']) if ui_order.get('fel_gt_contingency_access_number') else False
         })
-        
+
         return result
 
     def _export_for_ui(self, order):
@@ -41,7 +42,7 @@ class PosOrder(models.Model):
         result['fel_gt_date_invoice'] = order.fel_gt_date_invoice
         result['fel_gt_invoice_type'] = order.fel_gt_invoice_type
         return result
-        
+
     def _get_default_fel_gt_invoice_type(self):
         if self.env.user.fel_gt_invoice_default_type and self.env.user.fel_gt_invoice_default_type in ['FACT','FCAM','FEXP','NDEB','RECI']:
             return self.env.user.fel_gt_invoice_default_type
@@ -56,6 +57,7 @@ class PosOrder(models.Model):
             uuid = False
             serie_original = False
             dte_number_original = False
+            invoice_id = False
             for order in self.refunded_order_ids:
                 for invoice in order.account_move:
                     uuid = invoice.fel_gt_uuid
@@ -78,12 +80,15 @@ class PosOrder(models.Model):
             if int(self.fel_gt_contingency_access_number) > invoice_journal_id.fel_gt_contingency_actual_number:
                 invoice_journal_id.write({'fel_gt_contingency_actual_number': int(self.fel_gt_contingency_access_number)+1})
         return res
-    
+
     def _generate_pos_order_invoice(self):
+        """
+        Odoo 19: La firma y el flujo de este método siguen siendo compatibles.
+        Los cambios internos están en account.move, no en pos.order.
+        """
         moves = self.env['account.move']
 
         for order in self:
-            # Force company for all SUPERUSER_ID action
             if order.account_move:
                 moves += order.account_move
                 continue
@@ -97,16 +102,14 @@ class PosOrder(models.Model):
             order.write({'account_move': new_move.id, 'state': 'invoiced'})
             new_move.sudo().with_company(order.company_id).with_context(skip_invoice_sync=True)._post(soft=False)
 
-            # Send and Print
             if not order.config_id.fel_gt_disable_download_invoice_pdf:
                 template = self.env.ref(new_move._get_mail_template())
-                new_move.with_context(skip_invoice_sync=True)._generate_pdf_and_send_invoice(template)          
+                new_move.with_context(skip_invoice_sync=True)._generate_pdf_and_send_invoice(template)
 
             moves += new_move
             payment_moves = order._apply_invoice_payments()
 
-            if order.session_id.state == 'closed':  # If the session isn't closed this isn't needed.
-                # If a client requires the invoice later, we need to revers the amount from the closing entry, by making a new entry for that.
+            if order.session_id.state == 'closed':
                 order._create_misc_reversal_move(payment_moves)
 
         if not moves:
@@ -123,24 +126,26 @@ class PosOrder(models.Model):
             'target': 'current',
             'res_id': moves and moves.ids[0] or False,
         }
-    
+
     def _felgt_unreseve_qty(self):
         for move_line in self.sudo().mapped('picking_id').mapped('move_ids_without_package').mapped('move_line_ids'):
-
-            # Check qty is not in draft and cancel state
             if self.sudo().mapped('picking_id').state not in ['draft', 'cancel', 'assigned', 'waiting']:
-
-                # unreserve qty
-                quant = self.env['stock.quant'].sudo().search([('location_id', '=', move_line.location_id.id),('product_id', '=',move_line.product_id.id),('lot_id', '=', move_line.lot_id.id)], limit=1)
-
+                quant = self.env['stock.quant'].sudo().search([
+                    ('location_id', '=', move_line.location_id.id),
+                    ('product_id', '=', move_line.product_id.id),
+                    ('lot_id', '=', move_line.lot_id.id)
+                ], limit=1)
                 if quant:
                     quant.write({'quantity': quant.quantity + move_line.quantity})
 
-                quant = self.env['stock.quant'].sudo().search([('location_id', '=', move_line.location_dest_id.id),('product_id', '=',move_line.product_id.id),('lot_id', '=', move_line.lot_id.id)], limit=1)
-
+                quant = self.env['stock.quant'].sudo().search([
+                    ('location_id', '=', move_line.location_dest_id.id),
+                    ('product_id', '=', move_line.product_id.id),
+                    ('lot_id', '=', move_line.lot_id.id)
+                ], limit=1)
                 if quant:
                     quant.write({'quantity': quant.quantity - move_line.quantity})
-    
+
     def fel_gt_cancel(self, cancel_invoice=True, motive='Anulación'):
         if self.session_id.state == 'opened' or not cancel_invoice:
             if self.picking_ids and self.config_id.fel_gt_cancel_stock_picking:
@@ -182,18 +187,14 @@ class PosOrder(models.Model):
         else:
             real_domain = AND([domain, default_domain])
         orders = self.search(real_domain, limit=limit, offset=offset)
-        # We clean here the orders that does not have the same currency.
-        # As we cannot use currency_id in the domain (because it is not a stored field),
-        # we must do it after the search.
         pos_config = self.env['pos.config'].browse(config_id)
         orders = orders.filtered(lambda order: order.currency_id == pos_config.currency_id)
-        orderlines = self.env['pos.order.line'].search(['|', ('refunded_orderline_id.order_id', 'in', orders.ids), ('order_id', 'in', orders.ids)])
+        orderlines = self.env['pos.order.line'].search([
+            '|',
+            ('refunded_orderline_id.order_id', 'in', orders.ids),
+            ('order_id', 'in', orders.ids)
+        ])
 
-        # We will return to the frontend the ids and the date of their last modification
-        # so that it can compare to the last time it fetched the orders and can ask to fetch
-        # orders that are not up-to-date.
-        # The date of their last modification is either the last time one of its orderline has changed,
-        # or the last time a refunded orderline related to it has changed.
         orders_info = defaultdict(lambda: datetime.min)
         for orderline in orderlines:
             key_order = orderline.order_id.id if orderline.order_id in orders \
@@ -204,14 +205,14 @@ class PosOrder(models.Model):
         return {'ordersInfo': list(orders_info.items())[::-1], 'totalCount': totalCount}
 
     def fel_gt_pos_cancel(self, uuid, motive='Anulación'):
-        order = self.env['pos.order'].search([('fel_gt_uuid_invoice','=',uuid)], limit=1)
+        order = self.env['pos.order'].search([('fel_gt_uuid_invoice', '=', uuid)], limit=1)
         if order:
             if order.session_id.state == 'opened':
                 if order.state == 'invoiced':
                     order.fel_gt_cancel(cancel_invoice=True, motive=motive)
             else:
                 raise UserError('Solo es posible anular facturas de sesiones abiertas, favor realice una nota de crédito.')
-            
+
     def cancel_fel_gt(self):
         if self.env.user.fel_gt_cancel_in_pos and self.env.user.fel_gt_motive_cancel_in_pos:
             action = self.env.ref('pos_multicert_felgt.action_fel_gt_cancel_motive').read()[0]
