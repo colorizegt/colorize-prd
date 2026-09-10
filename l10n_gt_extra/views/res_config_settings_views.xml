@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="l10_gt_extra_settings_view_form" model="ir.ui.view">
+        <field name="name">l10_gt_extra_settings_view_form</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form//app[@name='account']" position="inside">
+                <block title="Retenciones" id="l10_gt_extra_withholding">
+                    <setting id="ignore_tax_withholding" help="Ingnorar Retenciones Automaticas">
+                        <field name="ignore_tax_withholding"/>
+                    </setting>
+                    <setting invisible="ignore_tax_withholding == True" id="iva_forgiveness_account_id" help="Ingrese la cuenta para exención de IVA de ventas.">
+                        <field name="iva_forgiveness_account_id"/>
+                    </setting>
+                    <setting invisible="ignore_tax_withholding == True" id="isr_sales_account_id" help="Ingrese la cuenta para registrar el ISR de ventas.">
+                        <field name="isr_sales_account_id"/>
+                    </setting>
+                    <setting invisible="ignore_tax_withholding == True" id="isr_purchase_account_id" help="Ingrese la cuenta para registrar el ISR de compras.">
+                        <field name="isr_purchase_account_id"/>
+                    </setting>
+                    <setting invisible="ignore_tax_withholding == True" id="iva_sales_account_id" help="Ingrese la cuenta para registrar la retencion de IVA de ventas.">
+                        <field name="iva_sales_account_id"/>
+                    </setting>
+                    <setting invisible="ignore_tax_withholding == True" id="iva_purchase_account_id" help="Ingrese la cuenta para registrar la retencion de IVA de compras.">
+                        <field name="iva_purchase_account_id"/>
+                    </setting>
+                </block>
+                <block title="Pagos electronicos" id="l10_gt_extra_electronic_payment">
+                    <setting id="user_electronic_payment" help="Bo. Pagos electronicos">
+                        <field name="user_electronic_payment"/>
+                    </setting>
+                    <setting id="manager_electronic_payment" help="Encargado Pagos electronicos">
+                        <field name="manager_electronic_payment"/>
+                    </setting>
+                </block>
+                <block title="Líneas Analíticas" id="l10_gt_extra_analytic_lines">
+                    <setting id="show_analytic_lines" help="Indique si desea que se muestren las líneas analíticas en el detalle de las facturas.">
+                        <field name="show_analytic_lines"/>
+                    </setting>
+                </block>
+                <block title="Reportes Contabilidad" id="l10_gt_extra_accounting_reports">
+                    <setting id="journals_to_exclude" help="Diarios a Excluir en Reportes">
+                        <field name="journals_to_exclude" widget="many2many_tags"/>
+                    </setting>
+                </block>
+                <block title="Configuraciones Adicionales Libro de Ventas" id="l10_gt_extra_sale_report">
+                    <setting id="sale_report_establishment_field" help="Ingrese el campo en donde se registra el establecimiento.">
+                        <field name="sale_report_establishment_field" domain="[('model_id.model','=','account.journal')]" options="{'no_create': True, 'no_create_edit':True}"/>
+                    </setting>
+                    <setting id="sale_report_invoice_number_field" help="Ingrese el campo en donde se registra el número de la factura.">
+                        <field name="sale_report_invoice_number_field" domain="[('model_id.model','=','account.move')]" options="{'no_create': True, 'no_create_edit':True}"/>
+                    </setting>
+                    <setting id="sale_report_invoice_serie_field" help="Ingrese el campo en donde se registra la serie de la factura.">
+                        <field name="sale_report_invoice_serie_field" domain="[('model_id.model','=','account.move')]" options="{'no_create': True, 'no_create_edit':True}"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+
+    </record>
+</odoo>

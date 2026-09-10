@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Frases de retención del ISR (tipo 1) -->
+        <record id="fel_gt_phrase_1_1" model="fel_gt.tools.phrases">
+            <field name="name">Sujeto a pagos trimestrales ISR</field>
+            <field name="description">Sujeto a pagos trimestrales ISR</field>
+            <field eval="1" name="scenario_code"/>
+            <field eval="1" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_1_2" model="fel_gt.tools.phrases">
+            <field name="name">Sujeto a retención definitiva ISR</field>
+            <field name="description">Sujeto a retención definitiva ISR</field>
+            <field eval="2" name="scenario_code"/>
+            <field eval="1" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_1_3" model="fel_gt.tools.phrases">
+            <field name="name">Sujeto a pago directo ISR</field>
+            <field name="description">Sujeto a pago directo ISR</field>
+            <field eval="3" name="scenario_code"/>
+            <field eval="1" name="phrase_type"/>
+        </record>
+        <!-- Frases de retención del ISR (tipo 1) -->
+        <!-- Frases de Agente de Retención del IVA (tipo 2) -->
+        <record id="fel_gt_phrase_2_1" model="fel_gt.tools.phrases">
+            <field name="name">Agente de Retención del IVA</field>
+            <field name="description">Agente de Retención del IVA</field>
+            <field eval="1" name="scenario_code"/>
+            <field eval="2" name="phrase_type"/>
+        </record>
+        <!-- Frases de Agente de Retención del IVA (tipo 2) -->
+        <!-- Frase de no genera derecho a crédito fiscal del IVA (tipo 3) -->
+        <record id="fel_gt_phrase_3_1" model="fel_gt.tools.phrases">
+            <field name="name">No genera derecho a crédito fiscal</field>
+            <field name="description">No genera derecho a crédito fiscal</field>
+            <field eval="1" name="scenario_code"/>
+            <field eval="3" name="phrase_type"/>
+        </record>
+        <!-- Frase de no genera derecho a crédito fiscal del IVA (tipo 3) -->
+        <!-- Frases de exento o no afecto al IVA (tipo 4) -->
+        <record id="fel_gt_phrase_4_1" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Exportaciones</field>
+            <field name="description">Exenta del IVA (art. 7 num. 2 Ley del IVA)</field>
+            <field eval="1" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_2" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Servicios</field>
+            <field name="description">Exenta del IVA (art. 7 num. 4 Ley del IVA)</field>
+            <field eval="2" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_3" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Ventas de cooperativas</field>
+            <field name="description">Exenta del IVA (art. 7 num. 5 Ley del IVA)</field>
+            <field eval="3" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_4" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Donaciones</field>
+            <field name="description">Exenta del IVA (art. 7 num. 9 Ley del IVA)</field>
+            <field eval="4" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_5" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Pagos por el derecho de ser miembro y las cuotas periódicas</field>
+            <field name="description">Exenta del IVA (art. 7 num. 10 Ley del IVA)</field>
+            <field eval="5" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_6" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Servicios exentos</field>
+            <field name="description">Exenta del IVA (art. 7 num. 13 Ley del IVA)</field>
+            <field eval="6" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_7" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Venta de activos de Bancos o Sociedades Financieras</field>
+            <field name="description">Exenta del IVA (art. 7 num. 14 Ley del IVA)</field>
+            <field eval="7" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_8" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Servicios exentos centros educativos privados</field>
+            <field name="description">Exenta del IVA (art. 8 num. 1 Ley del IVA)</field>
+            <field eval="8" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_9" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Medicamentos</field>
+            <field name="description">Exenta del IVA (art. 7 num. 15 Ley del IVA)</field>
+            <field eval="9" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_10" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Vehículos</field>
+            <field name="description">Esta factura no incluye IVA (art. 55 Ley del IVA)</field>
+            <field eval="10" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_11" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Ventas maquilas</field>
+            <field name="description">No afecta al IVA (Decreto 29-89 Ley de Maquila)</field>
+            <field eval="11" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_11_2" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Operaciones específicas de maquilas, usuarios de zonas francas y coexportadores</field>
+            <field name="description">No afecta al IVA (Decreto 29-89 Ley de Maquila)</field>
+            <field eval="11" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_12" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Ventas zonas francas</field>
+            <field name="description">No afecta al IVA (Decreto 65-89 Ley de Zonas Francas)</field>
+            <field eval="12" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_13" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Venta de vivienda</field>
+            <field name="description">Exenta del IVA (art. 7 num. 12, Ley del IVA)</field>
+            <field eval="13" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_14" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Venta de títulos y acciones</field>
+            <field name="description">Exenta del IVA (art. 7 num. 6 Ley del IVA)</field>
+            <field eval="14" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_15" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Venta al menudeo en mercados</field>
+            <field name="description">Exenta del IVA (art. 7 num. 11 Ley del IVA)</field>
+            <field eval="15" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_16" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Ventas y servicios universidades</field>
+            <field name="description">Exenta del IVA (art. 8 num. 2 Ley del IVA)</field>
+            <field eval="16" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_17" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Ventas Usuarios Zolic</field>
+            <field name="description">Exenta del IVA (art. 32 literal c, Ley Orgánica Zolic)</field>
+            <field eval="17" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_18" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Ventas exentas del IVA por disposición específica</field>
+            <field name="description">(Contribuyentes con disposiciones específicas de exención al IVA)</field>
+            <field eval="18" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_19" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Faltante de inventario de bienes perecederos, casos fortuitos, de fuerza mayor o delitos</field>
+            <field name="description">Exenta del IVA (art. 3 num. 7 Ley del IVA)</field>
+            <field eval="19" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_20" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Aportes sociedades de emprendimiento</field>
+            <field name="description">Aportes (art. 35 Ley de Fortalecimiento al Emprendimiento)</field>
+            <field eval="20" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_201" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Otros cargos, impuestos y/o tasas a otros países, no sujetos a IVA</field>
+            <field name="description">Cargos e impuestos no sujetos a IVA (Aerolíneas)</field>
+            <field eval="21" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_22" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Las notas de débito y crédito no deben incluir IVA cuando el documento origen al que hacen referencia tampoco lo incluye</field>
+            <field name="description">Factura origen no incluye IVA</field>
+            <field eval="22" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_23" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - La transferencia de dominio de bienes muebles</field>
+            <field name="description">Exenta del IVA (art. 7, numeral 3, literal c, Ley del IVA)</field>
+            <field eval="23" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_24" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Servicios no afectos</field>
+            <field name="description">No afecto al IVA (Fuera del hecho generador art. 3, 7 y 8, Ley del IVA)</field>
+            <field eval="24" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_25" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Ventas Zolic</field>
+            <field name="description">Exenta del IVA (art. 31 Dec. 22-73 Ley Orgánica Zolic)</field>
+            <field eval="25" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_26" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Boletos aéreos para beneficiarios del Dec. 31-2022</field>
+            <field name="description">Exenta del IVA (art. 4 Dec. 31-2022 Ley de Fom. del Trab. Temp. en el Extranjero)</field>
+            <field eval="26" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_27" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Primera venta vehículo eléctrico, motocicleta eléctrica o impulsado por hidrógeno.</field>
+            <field name="description">Exenta del IVA (art. 7 literal “a” Dec. 40-2022 Ley Inc. Mov. Eléctrica)</field>
+            <field eval="27" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_28" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Primera venta vehículo eléctrico, motocicleta eléctrica, vehículo híbrido o impulsado por hidrógeno pesado o especial</field>
+            <field name="description">Exenta del IVA (art. 7 literal “c” Dec. 40-2022 Ley Inc. Mov. Eléctrica)</field>
+            <field eval="28" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_29" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Primera venta teleférico, funicular, tren eléctrico, tren ligero, tranvía o trolebús</field>
+            <field name="description">Exenta del IVA (art. 7 literal “d” Dec. 40-2022 Ley Inc. Mov. Eléctrica)</field>
+            <field eval="29" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_30" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Servicio de transporte público y transporte colectivo</field>
+            <field name="description">Exenta del IVA (art. 7 literal “g” Dec. 40-2022 Ley Inc. Mov. Eléctrica)</field>
+            <field eval="30" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_4_31" model="fel_gt.tools.phrases">
+            <field name="name">Exento de IVA - Primera venta de componentes específicos</field>
+            <field name="description">Exenta del IVA (art. 7 literal “h” o “i” Dec. 40-2022 Ley Inc. Mov. Eléctrica)</field>
+            <field eval="31" name="scenario_code"/>
+            <field eval="4" name="phrase_type"/>
+        </record>
+        <!-- Frases de exento o no afecto al IVA (tipo 4) -->
+        <!-- Frases Factura Especial (tipo 5) -->
+        <record id="fel_gt_phrase_5_1" model="fel_gt.tools.phrases">
+            <field name="name">Factura especial</field>
+            <field name="description">El vendedor o prestador del servicio se negó a emitir la factura correspondiente. (art. 52 Ley del IVA)</field>
+            <field eval="1" name="scenario_code"/>
+            <field eval="5" name="phrase_type"/>
+        </record>
+        <!-- Frases Factura Especial (tipo 5) -->
+        <!-- Frases de Régimen Especial de contribuyente agropecuario (tipo 6) -->
+        <record id="fel_gt_phrase_6_1" model="fel_gt.tools.phrases">
+            <field name="name">El contribuyente está afiliado al IVA en el Régimen Especial de Contribuyente Agropecuario y su forma de pago del impuesto es el 5% sobre las ventas brutas</field>
+            <field name="description">Con forma de pago sobre las ventas brutas</field>
+            <field eval="1" name="scenario_code"/>
+            <field eval="6" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_6_2" model="fel_gt.tools.phrases">
+            <field name="name">El contribuyente está afiliado al IVA en el Régimen Especial de Contribuyente Agropecuario y su forma de pago del impuesto es el 5% sobre las utilidades</field>
+            <field name="description">Con forma de pago sobre las utilidades, no retener</field>
+            <field eval="2" name="scenario_code"/>
+            <field eval="6" name="phrase_type"/>
+        </record>
+        <!-- Frases de Régimen Especial de contribuyente agropecuario (tipo 6) -->
+        <!-- Frases de regímenes electrónicos (tipo 7) -->
+        <record id="fel_gt_phrase_7_1" model="fel_gt.tools.phrases">
+            <field name="name">El contribuyente está afiliado al IVA en el Régimen electrónico de pequeño contribuyente</field>
+            <field name="description">No retener</field>
+            <field eval="1" name="scenario_code"/>
+            <field eval="7" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_7_2" model="fel_gt.tools.phrases">
+            <field name="name">El contribuyente está afiliado al IVA en el Régimen electrónico especial de contribuyente agropeguario</field>
+            <field name="description">No retener</field>
+            <field eval="2" name="scenario_code"/>
+            <field eval="7" name="phrase_type"/>
+        </record>
+        <!-- Frases de regímenes electrónicos (tipo 7) -->
+        <!-- Frases de Exento de ISR (tipo 8) -->
+        <record id="fel_gt_phrase_8_1" model="fel_gt.tools.phrases">
+            <field name="name">Exenciones generales universidades</field>
+            <field name="description">Exenta del ISR (art. 8 núm. 2 Ley de Actualización Tributaria)</field>
+            <field eval="1" name="scenario_code"/>
+            <field eval="8" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_8_2" model="fel_gt.tools.phrases">
+            <field name="name">Exenciones generales centros educativos privados</field>
+            <field name="description">Exenta del ISR (art. 8 núm. 3 Ley de Actualización Tributaria)</field>
+            <field eval="2" name="scenario_code"/>
+            <field eval="8" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_8_3" model="fel_gt.tools.phrases">
+            <field name="name">Exenciones generales iglesias</field>
+            <field name="description">Exenta del ISR (art. 8 núm. 5 Ley de Actualización Tributaria)</field>
+            <field eval="3" name="scenario_code"/>
+            <field eval="8" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_8_4" model="fel_gt.tools.phrases">
+            <field name="name">Exenciones Rentas de Actividades Lucrativas entes no lucrativos</field>
+            <field name="description">Exenta del ISR (art. 11 núm. 1 Ley de Actualización Tributaria)</field>
+            <field eval="4" name="scenario_code"/>
+            <field eval="8" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_8_5" model="fel_gt.tools.phrases">
+            <field name="name">Exenciones Rentas de Actividades Lucrativas cooperativas</field>
+            <field name="description">Exenta del ISR (art. 11 núm. 2 Ley de Actualización Tributaria)</field>
+            <field eval="5" name="scenario_code"/>
+            <field eval="8" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_8_6" model="fel_gt.tools.phrases">
+            <field name="name">Exenta ISR Zolic</field>
+            <field name="description">Exenta del ISR (art. 31 Ley Orgánica Zolic)</field>
+            <field eval="6" name="scenario_code"/>
+            <field eval="8" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_8_7" model="fel_gt.tools.phrases">
+            <field name="name">Exenta ISR Usuarios Zolic</field>
+            <field name="description">Exenta del ISR (art. 32 litar a, Ley Orgánica Zolic)</field>
+            <field eval="7" name="scenario_code"/>
+            <field eval="8" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_8_8" model="fel_gt.tools.phrases">
+            <field name="name">Exenciones generales entidades del Estado</field>
+            <field name="description">Exenta del ISR (art. 8 núm. 1 Ley de Actualización Tributaria)</field>
+            <field eval="8" name="scenario_code"/>
+            <field eval="8" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_8_9" model="fel_gt.tools.phrases">
+            <field name="name">Exención por servicio de carga eléctrica a otros tipos de vehículos y transporte</field>
+            <field name="description">Exenta del ISR (Art. 4, literal b), numeral ii, Dec. 40-2022, Ley Inc. Mov. Eléctrica)</field>
+            <field eval="9" name="scenario_code"/>
+            <field eval="8" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_8_10" model="fel_gt.tools.phrases">
+            <field name="name">Exención por servicios de ensamblaje y/o producción a otros vehículos y transporte</field>
+            <field name="description">Exenta del ISR (Art. 7, literal f, Dec. 40-2022, Ley Inc. Mov. Eléctrica)</field>
+            <field eval="10" name="scenario_code"/>
+            <field eval="8" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_8_11" model="fel_gt.tools.phrases">
+            <field name="name">Exención a servicios de transporte público y colectivo</field>
+            <field name="description">Exenta del ISR (Art. 7, literal g, Dec. 40-2022, Ley Inc. Mov. Eléctrica)</field>
+            <field eval="11" name="scenario_code"/>
+            <field eval="8" name="phrase_type"/>
+        </record>
+        <!-- Frases de Exento de ISR (tipo 8) -->
+        <!-- Frases Especiales (tipo 9) -->
+        <record id="fel_gt_phrase_9_1" model="fel_gt.tools.phrases">
+            <field name="name">Decreto XX-2022</field>
+            <field name="description">Esta factura incluye apoyo social temporal al precio del gas licuado envasado en cilindros portátiles (Dec. XX-2022) por un valor XXXXX</field>
+            <field eval="1" name="scenario_code"/>
+            <field eval="9" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_9_2" model="fel_gt.tools.phrases">
+            <field name="name">Decreto 42-2022</field>
+            <field name="description">Esta factura incluye apoyo social temporal Decreto 42-2022 por un valor de GTQ – XXXX</field>
+            <field eval="2" name="scenario_code"/>
+            <field eval="9" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_9_3" model="fel_gt.tools.phrases">
+            <field name="name">Decreto 42-2022</field>
+            <field name="description">Monto total a pagar sin apoyo social GTQ - XXX</field>
+            <field eval="3" name="scenario_code"/>
+            <field eval="9" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_9_4" model="fel_gt.tools.phrases">
+            <field name="name">Impuesto de Salida Vía Aérea</field>
+            <field name="description">Exenta Impuesto Salida Vía Aérea (art. 4 Dec. 31-2022 Ley de Fom. del Trab. Temp. en el Extranjero)</field>
+            <field eval="4" name="scenario_code"/>
+            <field eval="9" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_9_5" model="fel_gt.tools.phrases">
+            <field name="name">Decreto 45-2022</field>
+            <field name="description">Esta factura incluye apoyo social temporal al precio del gas licuado envasado en cilindros portátiles (Dec. 45-2022)</field>
+            <field eval="5" name="scenario_code"/>
+            <field eval="9" name="phrase_type"/>
+        </record>
+        <record id="fel_gt_phrase_9_6" model="fel_gt.tools.phrases">
+            <field name="name">Decreto 45-2022</field>
+            <field name="description">Esta factura incluye apoyo social temporal al precio del gas licuado envasado en cilindros portátiles (Dec. 45-2022 y sus Reformas)</field>
+            <field eval="6" name="scenario_code"/>
+            <field eval="9" name="phrase_type"/>
+        </record>
+        <!-- Frases Especiales (tipo 9) -->
+    </data>
+</odoo>

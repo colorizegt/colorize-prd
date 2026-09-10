@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates id="template" xml:space="preserve">
+    <t
+        t-name="PartnerDetailsEdit"
+        t-inherit="point_of_sale.PartnerDetailsEdit"
+        t-inherit-mode="extension"
+        owl="1"
+    >
+        <xpath expr="//div[hasclass('partner-details-box')]" position="inside">
+            <t t-if="pos.isGuatemalanCompany()">
+                <div class="partner-detail col">
+                    <span class="form-label label">Número de DPI</span>
+                    <input class="detail vat form-control" id="fel_gt_dpi_number" name="fel_gt_dpi_number" t-model="changes.fel_gt_dpi_number" t-att="{'disabled': isFieldCommercialAndPartnerIsChild('fel_gt_dpi_number')}" t-att-class="{'border-danger': missingFields.includes('fel_gt_dpi_number')}"/>
+                </div>
+                <div class="partner-detail col">
+                    <span class="form-label label">Pasaporte</span>
+                    <input class="detail vat form-control" id="fel_gt_passport_number" name="fel_gt_passport_number" t-model="changes.fel_gt_passport_number" t-att="{'disabled': isFieldCommercialAndPartnerIsChild('fel_gt_passport_number')}" t-att-class="{'border-danger': missingFields.includes('fel_gt_passport_number')}"/>
+                </div>
+            </t>
+        </xpath>
+    </t>
+</templates>

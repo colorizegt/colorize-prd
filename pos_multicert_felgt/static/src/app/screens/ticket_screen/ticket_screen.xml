@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    
+    <t t-name="TicketScreen" t-inherit="point_of_sale.TicketScreen" t-inherit-mode="extension" owl="1">
+        <xpath expr="//div[hasclass('header-row')]//div[hasclass('narrow')]" position="after">
+            <t t-if="showFelGtData()">
+                <div class="col wide p-2">Número</div>
+                <div class="col wide p-2">Serie</div>
+                <div class="col narrow p-2">Número de Autorización</div>
+            </t>
+            <t t-if="showFelGtCancel()">
+                <div class="col very-narrow p-2">Anular Factura</div>
+            </t>
+        </xpath>
+        <xpath expr="//div[hasclass('order-row')]//div[hasclass('delete-button')]" position="replace">
+            <div t-if="!shouldHideDeleteButton(order) and !showFelGtData()" class="col very-narrow delete-button p-2" name="delete" t-on-click.stop="() => this.onDeleteOrder(order)">
+                <i class="fa fa-trash" aria-hidden="true"/>
+            </div>
+        </xpath>
+        <xpath expr="//div[hasclass('order-row')]//div[hasclass('narrow')]" position="after">
+            <div class="col end wide p-2" t-if="showFelGtData()">
+                <div><t t-esc="getNumerFelGt(order)"/></div>
+            </div>
+            <div class="col end wide p-2" t-if="showFelGtData()">
+                <div><t t-esc="getSerieFelGt(order)"/></div>
+            </div>
+            <div class="col end narrow p-2" t-if="showFelGtData()">
+                <div><t t-esc="getUuidFelGt(order)"/></div>
+            </div>
+            <div class="col very-narrow p-2" t-if="showFelGtCancel()">
+                <div>
+                    <button class="highlight btn btn-lg btn-primary" t-on-click="() => this.cancelFELGT(order)">
+                        <span class="search-icon">
+                            <i class="fa fa-minus-circle" aria-hidden="true"/>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </xpath>
+    </t>
+
+</templates>

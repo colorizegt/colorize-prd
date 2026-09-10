@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="multicert_felgt_account_fiscal_position_form_view" model="ir.ui.view">
+        <field name="name">multicert_felgt.multicert_felgt_account_fiscal_position_form_view</field>
+        <field name="model">account.fiscal.position</field>
+        <field name="inherit_id" ref="account.view_account_position_form" />
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="fel_gt_tax_withold"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+<odoo>
+    <record id="module_multicert_felgt_category" model="ir.module.category">
+        <field name="name">Facturación Electrónica</field>
+    </record>
+    <record id="felgt_group_user" model="res.groups">
+        <field name="name">Usuario Factura Electronica</field>
+        <field name="category_id" ref="module_multicert_felgt_category"/>
+        <field eval="[(4, ref('base.group_user'))]" name="implied_ids"/>
+    </record>
+    <record id="felgt_group_manager" model="res.groups">
+        <field name="name">Encargado Factura Electronica</field>
+        <field name="category_id" ref="module_multicert_felgt_category"/>
+        <field eval="[(4, ref('felgt_group_user'))]" name="implied_ids"/>
+        <field eval="[(4, ref('base.user_root'))]" name="users"/>
+    </record>
+    <record id="res_partner_portal_public_rule" model="ir.rule">
+        <field name="name">res_partner: portal/public: read access on my commercial partner</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="domain_force">['|', ('id', '!=', False), ('id', 'child_of', user.commercial_partner_id.id)]</field>
+        <field eval="[(4, ref('base.group_portal')), (4, ref('base.group_public'))]" name="groups"/>
+        <field eval="False" name="perm_create"/>
+        <field eval="False" name="perm_unlink"/>
+        <field eval="False" name="perm_write"/>
+    </record>
+</odoo>

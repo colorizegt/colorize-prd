@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="point_of_sale.template" xml:space="preserve">
+
+        <t t-name="Navbar" t-inherit="point_of_sale.Navbar" t-inherit-mode="extension" owl="1">
+            <xpath expr="//div[hasclass('pos-branding')]/img" position="replace">
+                <t t-if="this.pos.config &amp;&amp; this.pos.isGuatemalanCompany()">
+                    <t t-if="this.pos.config.fel_gt_pos_custom_logo">
+                        <img class="pos-logo" t-on-click="() => this.trigger('toggle-debug-widget')" t-attf-src="/web/image?model=pos.config&amp;field=fel_gt_pos_custom_logo&amp;id={{ this.pos.config.id }}&amp;unique=1" alt="Logo" />
+                     </t>
+                </t>
+            </xpath>
+        </t>
+
+</templates>

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="pos_multicert_felgt.OrderReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
+        <xpath expr="//ReceiptHeader" position="after">
+            <t t-if="props.data.fel_gt_active">
+                <div class="pos-receipt-contact">
+                    <t t-if="props.data.company.name">
+                        <h3 class="pos-receipt-center-align">
+                            <t t-esc="props.data.company.name" />
+                        </h3>
+                    </t>
+                    <t t-if="props.data.company.vat">
+                        <div class="pos-receipt-center-align">
+                            NIT: <t t-esc="props.data.company.vat" />
+                        </div>
+                    </t>
+                    <t t-if="props.data.fel_gt_commercial_name">
+                        <div class="pos-receipt-center-align">
+                            <strong><t t-esc="props.data.fel_gt_commercial_name" /></strong>
+                        </div>
+                    </t>
+                    <t t-if="props.data.street_invoice">
+                        <div class="pos-receipt-center-align"><t t-esc="props.data.street_invoice"/></div>
+                    </t>
+                    <t t-if="props.data.fel_gt_township_and_department">
+                        <div class="pos-receipt-center-align"><t t-esc="props.data.fel_gt_township_and_department"/></div>
+                    </t>
+                    <t t-if="props.data.company.phone">
+                        <div class="pos-receipt-center-align">Télefono: <t t-esc="props.data.company.phone"/></div>
+                    </t>
+                    <t t-if="props.data.company.website">
+                        <div class="pos-receipt-center-align">Sitio Web: <t t-esc="props.data.company.website"/></div>
+                    </t>
+                    <t t-if="props.data.cashier">
+                        <div class="cashier">
+                            <div>--------------------------------</div>
+                            <div>Atendido por: <t t-esc="props.data.cashier" /></div>
+                        </div>
+                    </t>
+                    <t t-if='props.data.fel_gt_dte_invoice'>
+                        <div>--------------------------------</div>
+                        <div>DOCUMENTO TRIBUTARIO ELECTRONICO</div>
+                        <t t-if="props.data.fel_gt_invoice_type_text">
+                            <div t-esc='props.data.fel_gt_invoice_type_text'/>
+                        </t>
+                        <div><strong>AUTORIZACIÓN: </strong>
+                            <t t-if="props.data.fel_gt_uuid_invoice">
+                                <t t-esc='props.data.fel_gt_uuid_invoice'/>
+                            </t>
+                        </div>
+                        <div><strong>SERIE: </strong>
+                            <t t-if="props.data.fel_gt_serie_invoice">
+                                <t t-esc='props.data.fel_gt_serie_invoice'/>
+                            </t>
+                        </div>
+                        <div><strong>NÚMERO: </strong>
+                            <t t-if="props.data.fel_gt_dte_invoice">
+                                <t t-esc='props.data.fel_gt_dte_invoice'/>
+                            </t>
+                        </div>
+                        <div><strong>FECHA HORA CERTIFICACIÓN: </strong>
+                            <t t-if="props.data.datetime_invoice">
+                                <t t-esc='props.data.datetime_invoice'/>
+                            </t>
+                        </div>
+                        <div><strong>FECHA FACTURA: </strong>
+                            <t t-if="props.data.fel_gt_date_invoice">
+                                <t t-esc="props.data.fel_gt_date_invoice"/>
+                            </t>
+                        </div>
+                    </t>
+                    <t t-if='props.data.fel_gt_has_contingency'>
+                        <div>--------------------------------</div>
+                        <div>DOCUMENTO EN CONTINGENCIA</div>
+                        <t t-if="props.data.type_fel == 'FACT'">
+                            <div>FACTURA ELECTRÓNICA</div>
+                        </t>
+                        <t t-if="props.data.type_fel == 'NCRE'">
+                            <div>NOTA DE CREDITO ELECTRÓNICA</div>
+                        </t>
+                        <div><strong>NÚMERO DE ACCESO:</strong>
+                            <t t-if="props.data.fel_gt_contingency_access_number">
+                                <t t-esc='props.data.fel_gt_contingency_access_number'/>
+                            </t>
+                        </div>
+                    </t>
+                    <div>--------------------------------</div>
+
+                    <div>
+                        <t t-if="props.data.client.name">
+                            Cliente: <t t-esc='props.data.client.name'/>
+                        </t>
+                    </div>
+                    <div>
+                        <t t-if="props.data.client_vat">
+                            <t t-esc='props.data.tax_id_label'/>: <t t-esc='props.data.client_vat'/>
+                        </t>
+                    </div>
+                    <div>
+                        Dirección:
+                        <t t-if="!props.data.client.street">
+                            Ciudad
+                        </t>
+                        <t t-if="props.data.client.street">
+                            <t t-esc='props.data.client.street'/>
+                        </t>
+                    </div>
+                    <div>--------------------------------</div>
+                </div>
+            </t>
+        </xpath>
+        <div class="before-footer" />
+        <xpath expr="//div[hasclass('after-footer')]" position="after">
+            <t t-if="props.data.fel_gt_active">
+                <div style="text-align: center; font-size: 80%;">
+                    <br/>
+                    <div>---------------------------------------------------</div>
+                    <t t-if="props.data.fel_gt_phrases">
+                        <t t-foreach="props.data.fel_gt_phrases" t-as="phrase" t-key="phrase.name">
+                            <t t-esc="phrase.name"/><br/>
+                        </t>
+                    </t>
+                    <div>---------------------------------------------------</div>
+                </div>
+                <t t-if="props.data.show_pdv_name">
+                    <div style="text-align: center; font-size: 80%;">
+                        <t t-if="props.data.name_config">
+                            <div>Punto de Venta: <t t-esc="props.data.name_config" /></div>
+                        </t>
+                        <div>Generado el: <div t-esc="props.data.date" /></div>
+                        <div>---------------------------------------------------</div>
+                    </div>
+                </t>
+                <t t-if='props.data.fel_gt_active'>
+                    <div style="text-align: center; font-size: 80%;">
+                        <div>CERTIFICADOR</div>
+                        <t t-if="props.data.fel_gt_certifier == 'infile'">
+                            <div>Infile, S.A.</div>
+                            <div>NIT CERTIFICADOR</div>
+                            <div>12521337</div>
+                        </t>
+                        <t t-if="props.data.fel_gt_certifier == 'guatefacturas'">
+                            <div>Guatefacturas, S.A.</div>
+                            <div>NIT CERTIFICADOR</div>
+                            <div>56407734</div>
+                        </t>
+                        <t t-if="props.data.fel_gt_certifier == 'g4s'">
+                            <div>G4S Documenta, S.A.</div>
+                            <div>NIT CERTIFICADOR</div>
+                            <div>60010207</div>
+                        </t>
+                        <t t-if="props.data.fel_gt_certifier == 'megaprint'">
+                            <div>Megaprint, S.A.</div>
+                            <div>NIT CERTIFICADOR</div>
+                            <div>50510231</div>
+                        </t>
+                        <t t-if="props.data.fel_gt_certifier == 'digifact'">
+                            <div>Digifact Servicios, S.A.</div>
+                            <div>NIT CERTIFICADOR</div>
+                            <div>77454820</div>
+                        </t>
+                        <div>---------------------------------------------------</div>
+                    </div>
+                </t>
+                <t t-if='props.data.fel_gt_has_contingency'>
+                    <div style="text-align: center; font-size: 80%;">
+                        <br/>
+                        <div>Emisión en contingencia, obtenga su DTE certificado en el sitio web:</div>
+                    </div>
+                </t>
+                <div class='container'>
+                    <div class="row">
+                        <t t-if="props.data.fel_gt_show_fel_logo">
+                            <div class="col" style="padding-top:50px;">
+                                <img width="60" src="/pos_multicert_felgt/static/src/img/logo_fel.jpg" />
+                            </div>
+                        </t>
+                        <t t-if="props.data.fel_gt_show_qrcode">
+                            <div class="col" t-attf-id="qrcode_container">
+                                <img t-if="props.data.fel_gt_qr_code" id="qrcode" t-att-src="props.data.fel_gt_qr_code"/>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </xpath>
+    </t>
+</templates>

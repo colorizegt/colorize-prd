@@ -1,8 +1,9 @@
-# -*- encoding: utf-8 -*-
-
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 import logging
+
+_logger = logging.getLogger(__name__)
+
 
 class ResPartner(models.Model):
     _inherit = "res.partner"
@@ -13,6 +14,7 @@ class ResPartner(models.Model):
 
     @api.constrains('vat')
     def _validar_nit(self):
+        """Valida el NIT según algoritmo de la SAT"""
         for p in self:
             if p.vat == 'CF' or p.vat == 'C/F' or not p.vat:
                 return True
@@ -23,11 +25,11 @@ class ResPartner(models.Model):
             if p.no_validar_nit:
                 return True
 
-            # No validar NIT si el partner fue creado desde un sitio web, para evitar errores
+            # No validar NIT si el partner fue creado desde un sitio web
             if 'website_id' in p.env.context:
                 return True
 
-            nit = p.vat.replace('-','')
+            nit = p.vat.replace('-', '')
             verificador = nit[-1]
             if verificador == 'K':
                 verificador = '10'
@@ -39,28 +41,34 @@ class ResPartner(models.Model):
                 total += int(c) * i
                 i += 1
 
-            resultante = ( 11 - ( total % 11 ) ) % 11
+            resultante = (11 - (total % 11)) % 11
 
             if str(resultante) != verificador:
                 raise ValidationError("El NIT " + p.vat + " no es correcto (según lineamientos de la SAT)")
 
     @api.constrains('vat')
     def _validar_duplicado(self):
+        """Valida que no existan NIT duplicados"""
         for p in self:
-            # No validar NIT si el partner fue creado desde un sitio web, para evitar errores
+            # No validar NIT si el partner fue creado desde un sitio web
             if 'website_id' in p.env.context:
                 return True
 
             if not p.parent_id and p.vat and p.vat != 'CF' and p.vat != 'C/F' and not p.no_validar_nit:
-                repetidos = p.search([('vat','=',p.vat), ('id','!=',p.id), ('parent_id','=',False)])
+                repetidos = p.search([
+                    ('vat', '=', p.vat),
+                    ('id', '!=', p.id),
+                    ('parent_id', '=', False)
+                ])
                 if len(repetidos) > 0:
                     raise ValidationError("El NIT " + p.vat + " ya existe")
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
+        """Permite buscar por NIT en el campo de nombre"""
         res1 = super(ResPartner, self).name_search(name, args, operator=operator, limit=limit)
 
         records = self.search([('vat', 'ilike', name)], limit=limit)
         res2 = records.name_get()
 
-        return res1+res2
+        return res1 + res2

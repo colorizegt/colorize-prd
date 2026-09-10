@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    
+    <record id="multicert_felgt_res_partner_form_view_inherit" model="ir.ui.view">
+        <field name="name">multicert.felgt.res.partner.form.inherit</field>
+        <field name="active">True</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <field name="website" position="before">
+                <label for="fel_gt_vat" class="oe_inline" invisible="not parent_id"/>
+                <div class="o_row o_row_readonly" invisible="not parent_id">
+                    <field name="fel_gt_vat" invisible="not parent_id"/>
+                </div>
+                <label for="fel_gt_is_foreign" class="oe_inline"/>
+                <div class="o_row o_row_readonly">
+                    <field name="fel_gt_is_foreign" readonly="parent_id"/>
+                </div>
+                <label for="fel_gt_dpi_number" class="oe_inline"/>
+                <div class="o_row o_row_readonly">
+                    <field name="fel_gt_dpi_number" readonly="parent_id"/>
+                </div>
+                <label for="fel_gt_passport_number" class="oe_inline"/>
+                <div class="o_row o_row_readonly">
+                    <field name="fel_gt_passport_number" readonly="parent_id"/>
+                </div>
+                <label for="fel_gt_currency_from_invoice" class="oe_inline"/>
+                <div class="o_row o_row_readonly">
+                    <field name="fel_gt_currency_from_invoice" readonly="parent_id"/>
+                </div>
+                <label for="fel_gt_invoice_currency" class="oe_inline"/>
+                <div class="o_row o_row_readonly">
+                    <field name="fel_gt_invoice_currency" readonly="parent_id"/>
+                </div>
+            </field>
+            <xpath expr="//page[@name='internal_notes']" position="after">
+                <page required="fel_gt_is_foreign != True" name="export_info" string="Información Exportación">
+                    <group string="Información">
+                        <group>
+                            <field required="fel_gt_is_foreign" name="fel_gt_consignatary_name" readonly="parent_id"/>
+                            <field required="fel_gt_is_foreign" name="fel_gt_consignatary_address" readonly="parent_id"/>
+                            <field name="fel_gt_consignatary_code" readonly="parent_id"/>
+                            <field name="fel_gt_buyer_name" readonly="parent_id"/>
+                            <field name="fel_gt_buyer_address" readonly="parent_id"/>
+                            <field name="fel_gt_buyer_code" readonly="parent_id"/>
+                            <field name="fel_gt_exporter_name" readonly="parent_id"/>
+                            <field name="fel_gt_exporter_code" readonly="parent_id"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+            <xpath expr="//page[@name='contact_addresses']//form//sheet//group//field[@name='name']" position="after">
+                <field name="fel_gt_vat"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

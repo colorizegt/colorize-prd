@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    
+    <record id="fel_gt_tools_log_xml_sent_tree" model="ir.ui.view">
+        <field name="name">fel_gt_tools_log_xml_sent_tree</field>
+        <field name="active">True</field>
+        <field name="model">fel_gt.tools.log_xml_sent</field>
+        <field name="arch" type="xml">
+            <tree default_order="create_date desc" create="0" edit="0" delete="0">
+                <field name="name"/>
+                <field name="certifier"/>
+                <field name="move_id"/>
+                <field name="create_uid"/>
+                <field name="create_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="fel_gt_tools_log_xml_sent_form" model="ir.ui.view">
+        <field name="name">fel_gt_tools_log_xml_sent_form</field>
+        <field name="active">True</field>
+        <field name="model">fel_gt.tools.log_xml_sent</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0" delete="0">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="certifier"/>
+                        <field name="move_id" invisible="not move_id"/>
+                    </group>
+                    <group>
+                        <field name="create_uid"/>
+                        <field name="create_date"/>
+                    </group>
+                    <notebook>
+                        <page name="data_content" string="Contenido Enviado">
+                            <field name="data_content" widget="ace"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fel_gt_tools_log_xml_sent" model="ir.actions.act_window">
+        <field name="name">FEL Logger</field>
+        <field name="res_model">fel_gt.tools.log_xml_sent</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem action="action_fel_gt_tools_log_xml_sent" groups="multicert_felgt.felgt_group_manager" id="fel_gt_tools_log_xml_sent_menu" name="FEL Logger" parent="base.menu_users"/>
+
+</odoo>

@@ -1,62 +1,68 @@
-odoo.define('pos_multi_uom_price.UOMButton', function (require) {
-    "use strict";
+/** @odoo-module */
+import { ProductScreen } from "@point_of_sale/app/screens/product_screen/product_screen";
+import { Component } from "@odoo/owl";
+import { SelectionPopup } from "@point_of_sale/app/utils/input_popups/selection_popup";
 
-   const PosComponent = require('point_of_sale.PosComponent');
-   const ProductScreen = require('point_of_sale.ProductScreen');
-   const { useListener } = require('web.custom_hooks');
-   const Registries = require('point_of_sale.Registries');
+export class UOMButton extends Component {
+    static template = "point_of_sale.UOMButton";
 
-   class UOMButton extends PosComponent {
-       constructor() {
-           super(...arguments);
-           useListener('click', this.onClick);
-       }
-       get selectedOrderline() {
-	       return this.env.pos.get_order().get_selected_orderline();
-       }
-       async onClick() {
-	       let line = this.selectedOrderline;
-	       if (line) {
-	         let pupList = Object.keys(line.pos.product_uom_price);
-	         let product = line.product.product_tmpl_id;
-	         if (line && pupList.find(element => element === product.toString())) {
-		       const uomList = [ { } ];
-		       let uomPrices = line.pos.product_uom_price[product].uom_id;
-		       if (uomPrices) {
-			       _.each(uomPrices, function(uomPrice){
-				       uomList.push({
-					       id:	uomPrice.id,
-					       label:	uomPrice.name,
-					       isSelected: true,
-					       item:	uomPrice,
-				       });
-			       });
-		       }
-		       const { confirmed, payload: selectedUOM } = await this.showPopup("SelectionPopup", {
-			       title: 'UOM',
-			       list: uomList,
-		       });
+    setup() {
+        super.setup();
+    }
 
-		       if (confirmed) {
-			       this.selectedOrderline.set_uom({0:selectedUOM.id,1:selectedUOM.name});
-			       this.selectedOrderline.price_manually_set = true;
-			       this.selectedOrderline.set_unit_price(selectedUOM.price);
+    get selectedOrderline() {
+        return this.env.services.pos.getOrder()?.get_selected_orderline();
+    }
 
-		       }
-	         }
-	       }
-       }	   
-   }
-   UOMButton.template = 'UOMButton';
-   ProductScreen.addControlButton ({
-       component: UOMButton,
-       condition: function () {
-           return true;
-       },
-       position: ['before', 'SetPricelistButton'],
-   });
-   Registries.Component.add (UOMButton);
-   return UOMButton;
+    async onClick() {
+        const line = this.selectedOrderline;
+        if (!line) {
+            return;
+        }
 
+        const pos = this.env.services.pos;
+        const productTmplId = line.product.product_tmpl_id;
+        const productUomPrices = pos.product_uom_price || {};
 
+        const productKey = Object.keys(productUomPrices).find(
+            key => key === String(productTmplId)
+        );
+
+        if (!productKey) {
+            return;
+        }
+
+        const uomPrices = productUomPrices[productKey]?.uom_id;
+        if (!uomPrices) {
+            return;
+        }
+
+        const uomList = Object.values(uomPrices).map(uomPrice => ({
+            id: uomPrice.id,
+            label: uomPrice.name,
+            isSelected: line.product_uom_id && line.product_uom_id[0] === uomPrice.id,
+            item: uomPrice,
+        }));
+
+        const { confirmed, payload: selectedUOM } = await this.env.services.popup.add(
+            SelectionPopup,
+            {
+                title: 'UOM',
+                list: uomList,
+            }
+        );
+
+        if (confirmed && selectedUOM) {
+            line.set_uom([selectedUOM.id, selectedUOM.name]);
+            line.set_unit_price(selectedUOM.price);
+        }
+    }
+}
+
+// En Odoo 19, se usa el registro de componentes
+ProductScreen.addControlButton({
+    component: UOMButton,
+    condition: function () {
+        return true;
+    },
 });

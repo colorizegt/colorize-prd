@@ -1,0 +1,169 @@
+# -*- coding: utf-8 -*-
+import logging
+from odoo.http import request
+from odoo import api, fields, models, tools, _
+from odoo.exceptions import ValidationError, AccessError
+
+_logger = logging.getLogger(__name__)
+
+
+class IrModelAccess(models.Model):
+    _inherit = 'ir.model.access'
+
+    @api.model
+    @tools.ormcache_context('self.env.uid', 'self.env.su', 'model', 'mode', 'raise_exception', keys=('lang',))
+    def check(self, model, mode='read', raise_exception=True):
+        if model == 'mail.thread':
+            return True
+        if self.env.su or model == 'ir.model':
+            return True
+
+        assert isinstance(model, str), 'Not a model name: %s' % (model,)
+        assert mode in ('read', 'write', 'create', 'unlink'), 'Invalid access mode'
+
+        if model not in self.env:
+            _logger.error('Missing model %s', model)
+
+        # Verificar el parámetro de desinstalación
+        self.env.cr.execute(
+            "SELECT value FROM ir_config_parameter WHERE key = 'uninstall_simplify_access_management'"
+        )
+        value = self.env.cr.fetchone()
+
+        if not value:
+            if model:
+                try:
+                    self.env.cr.execute(
+                        "SELECT id FROM ir_model WHERE model = %s",
+                        (model,)
+                    )
+                    row = self.env.cr.fetchone()
+                    model_numeric_id = row[0] if row else None
+
+                    if model_numeric_id and isinstance(model_numeric_id, int) and self.env.user:
+                        self.env.cr.execute("""
+                            SELECT dm.id
+                            FROM access_domain_ah AS dm
+                            WHERE dm.model_id = %s
+                            AND dm.access_management_id IN (
+                                SELECT am.id
+                                FROM access_management AS am
+                                WHERE active = 't'
+                                AND am.id IN (
+                                    SELECT amusr.access_management_id
+                                    FROM access_management_users_rel_ah AS amusr
+                                    WHERE amusr.user_id = %s
+                                )
+                            )
+                        """, [model_numeric_id, self.env.user.id])
+
+                        access_domain_ah_ids = self.env['access.domain.ah'].sudo().browse(
+                            row[0] for row in self.env.cr.fetchall()
+                        ).filtered(
+                            lambda line: self.env.company in line.access_management_id.company_ids
+                        )
+                        if access_domain_ah_ids:
+                            return True
+                except Exception:
+                    pass
+
+        # Verificar regla específica
+        self.env.cr.execute("""
+            SELECT MAX(CASE WHEN perm_{mode} THEN 1 ELSE 0 END)
+            FROM ir_model_access a
+            JOIN ir_model m ON (m.id = a.model_id)
+            JOIN res_groups_users_rel gu ON (gu.gid = a.group_id)
+            WHERE m.model = %s
+            AND gu.uid = %s
+            AND a.active IS TRUE
+        """.format(mode=mode), (model, self._uid,))
+        r = self.env.cr.fetchone()[0]
+
+        if not r:
+            self.env.cr.execute("""
+                SELECT MAX(CASE WHEN perm_{mode} THEN 1 ELSE 0 END)
+                FROM ir_model_access a
+                JOIN ir_model m ON (m.id = a.model_id)
+                WHERE a.group_id IS NULL
+                AND m.model = %s
+                AND a.active IS TRUE
+            """.format(mode=mode), (model,))
+            r = self.env.cr.fetchone()[0]
+
+        if not r and raise_exception:
+            groups = '\n'.join('\t- %s' % g for g in self.group_names_with_access(model, mode))
+            document_kind = self.env['ir.model']._get(model).name or model
+            msg_heads = {
+                'read': _("You are not allowed to access '%(document_kind)s' (%(document_model)s) records.",
+                          document_kind=document_kind, document_model=model),
+                'write': _("You are not allowed to modify '%(document_kind)s' (%(document_model)s) records.",
+                           document_kind=document_kind, document_model=model),
+                'create': _("You are not allowed to create '%(document_kind)s' (%(document_model)s) records.",
+                            document_kind=document_kind, document_model=model),
+                'unlink': _("You are not allowed to delete '%(document_kind)s' (%(document_model)s) records.",
+                            document_kind=document_kind, document_model=model),
+            }
+            operation_error = msg_heads[mode]
+
+            if groups:
+                group_info = _("This operation is allowed for the following groups:\n%(groups_list)s",
+                               groups_list=groups)
+            else:
+                group_info = _("No group currently allows this operation.")
+
+            resolution_info = _("Contact your administrator to request access if necessary.")
+
+            _logger.info('Access Denied by ACLs for operation: %s, uid: %s, model: %s', mode, self._uid, model)
+            msg = """{operation_error}
+
+{group_info}
+
+{resolution_info}""".format(
+                operation_error=operation_error,
+                group_info=group_info,
+                resolution_info=resolution_info)
+
+            raise AccessError(msg)
+
+        # Verificar usuarios read-only
+        try:
+            read_value = True
+            self.env.cr.execute(
+                "SELECT state FROM ir_module_module WHERE name = 'simplify_access_management'"
+            )
+            data = self.env.cr.fetchone() or False
+
+            if data and data[0] != 'installed':
+                read_value = False
+
+            if self.env.user.id and read_value and request and request.httprequest.cookies.get('cids'):
+                cids = request.httprequest.cookies.get('cids').split(',')[0] or self.env.company.id
+                self.env.cr.execute(
+                    "SELECT access_management_id FROM access_management_comapnay_rel WHERE company_id = %s",
+                    (cids,)
+                )
+                a = self.env.cr.fetchall()
+                if a:
+                    placeholders = ','.join(['%s'] * (len(a) + 1))
+                    ids = [i[0] for i in a] + [0]
+                    self.env.cr.execute(
+                        "SELECT access_management_id FROM access_management_users_rel_ah WHERE user_id = %s AND access_management_id IN ({})".format(placeholders),
+                        [self.env.user.id] + ids
+                    )
+                    a = self.env.cr.fetchall()
+                    if a:
+                        placeholders = ','.join(['%s'] * (len(a) + 1))
+                        ids = [i[0] for i in a] + [0]
+                        self.env.cr.execute(
+                            "SELECT id FROM access_management WHERE active = 't' AND readonly = TRUE AND id IN ({})".format(placeholders),
+                            ids
+                        )
+                        a = self.env.cr.fetchall()
+
+                if bool(a):
+                    if mode != 'read':
+                        return False
+        except Exception:
+            pass
+
+        return bool(r)

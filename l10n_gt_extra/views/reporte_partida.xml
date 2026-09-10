@@ -2,72 +2,101 @@
 <odoo>
     <template id="reporte_partida">
         <t t-call="web.html_container">
+            <div class="footer">
+              <div class="row mt8">
+                  <div class="col-12">
+                      <ul t-if="report_type == 'pdf'" class="list-inline pagenumber float-right text-center">
+                          <li class="list-inline-item"><strong>Pagina: <span class="page"/></strong></li>
+                      </ul>
+                  </div>
+              </div>
+            </div>
+            
+            <div class="header">
+              <div style="margin-top: 20px">
+                <div class="row">
+                  <div class="col-5">
+                      <img t-if="company_id.logo" t-att-src="image_data_uri(company_id.logo)" style="max-height: 140px; margin-right: 80px" alt="Logo"/>
+                  </div>
+                  <div class="col-7">
+                    <div t-if="company_id.partner_id.name and company_id.logo" style="font-size: 20px;">
+                        <strong t-field="company_id.partner_id.name"/>
+                    </div>
+                    <div t-if="company_id" style="font-size: 18px">
+                        <strong t-field="company_id.company_registry"/> 
+                    </div>
+                    <div t-if="company_id.street" style="font-size: 14px">
+                      <span t-field="company_id.street"/>, <span t-field="res_company.city"/>, <span t-field="res_company.country_id.name"/>
+                    </div>
+                    <div t-if="company_id.vat" style="font-size: 14px">
+                      NIT: <span t-field="company_id.vat"/>
+                    </div>
+                    <div t-if="company_id.street2" style="font-size: 14px">
+                      <span t-field="company_id.street2"/>
+                    </div>
+                  </div>
+                  <div class="col-3 text-center" style="font-size: 16px; color: #2E6C89 ; " t-field="company_id.report_header" name="moto"/>
+                </div>
+              </div>
+            </div>
             <t t-call="web.external_layout">
+                <h2><span t-esc="company_id.name"/>: Partida</h2>
                 <div class="page">
                     <t t-foreach="docs" t-as="o">
-
                         <div>
-                            <h2><span t-esc="current_company_id.name"/>: Partida</h2>
-
                             <div class="row mt32">
                                 <div class="col-xs-4">
-                                    <strong>Partida:</strong> <span t-field="o.name"/><br/>
+                                    &amp;nbsp;&amp;nbsp;<strong>Partida:</strong> <span t-esc=" o.name "/><br/>
                                 </div>
                                 <div class="col-xs-4">
-                                    <strong>Ref:</strong> <span t-field="o.ref"/><br/>
+                                    &amp;nbsp;&amp;nbsp;<strong>Ref:</strong> <span t-esc=" o.ref "/><br/>
                                 </div>
                                 <div class="col-xs-4">
-                                    <strong>Fecha:</strong> <span t-field="o.date"/>
+                                    &amp;nbsp;&amp;nbsp;<strong>Fecha:</strong> <span t-esc=" o.date "/>
                                 </div>
                             </div>
 
-                            <t t-set="total_debe" t-value="0" />
-                            <t t-set="total_haber" t-value="0" />
+                            <t t-set="total_debe" t-value="0"/>
+                            <t t-set="total_haber" t-value="0"/>
                             <table class="table table-condensed">
                                 <thead>
-                                    <tr>
-                                        <th>Código</th>
-                                        <th>Cuenta</th>
-                                        <th>Analítica</th>
-                                        <th class="text-right">Debe</th>
-                                        <th class="text-right">Haber</th>
+                                    <tr width="100%">
+                                    <th class="text-center">Código</th>
+                                    <th width="80%">Cuenta</th>
+                                    <th width="10%" class="text-end">Debe</th>
+                                    <th width="10%" class="text-end">Haber</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr t-foreach="o.line_ids" t-as="l">
-                                        <t t-set="total_debe" t-value="total_debe + l.debit" />
-                                        <t t-set="total_haber" t-value="total_haber + l.credit" />
-                                        <td>
-                                            <span t-field="l.account_id.code"/>
-                                        </td>
-                                        <td>
-                                            <span t-field="l.account_id.name"/>
-                                        </td>
-                                        <td>
-                                            <span t-field="l.analytic_account_id"/>
-                                        </td>
-                                        <td class="text-right">
-                                             <span t-field="l.debit" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
-                                        </td>
-                                        <td class="text-right">
-                                            <span t-field="l.credit" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        </td>
-                                        <td>
-                                            Total:
-                                        </td>
-                                        <td>
-                                        </td>
-                                        <td class="text-right">
-                                             <span t-esc="total_debe" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
-                                        </td>
-                                        <td class="text-right">
-                                            <span t-esc="total_haber" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
-                                        </td>
-                                    </tr>
+                                <tr t-foreach="o.line_ids" t-as="l">
+                                    <t t-set="total_debe" t-value="total_debe + l.debit"/>
+                                    <t t-set="total_haber" t-value="total_haber + l.credit"/>
+                                    <td class="text-center">
+                                        <span t-field="l.account_id.code"/>
+                                    </td>
+                                    <td style="white-space: nowrap">
+                                        <span t-field="l.account_id.name"/>
+                                    </td>
+                                    <td class="text-end">
+                                            <span t-field="l.debit" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-field="l.credit" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                    </td>
+                                    <td>
+                                        Total:
+                                    </td>
+                                    <td class="text-end">
+                                            <span t-esc="total_debe" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-esc="total_haber" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                    </td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>

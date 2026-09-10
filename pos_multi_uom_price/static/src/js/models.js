@@ -1,67 +1,72 @@
-odoo.define('pos_multi_uom_price.models', function (require) {
-  "use strict";
+/** @odoo-module */
+import { Order, Orderline } from "@point_of_sale/app/store/models";
+import { patch } from "@web/core/utils/patch";
+import { PosStore } from "@point_of_sale/app/store/pos_store";
 
-var models = require('point_of_sale.models');
-var _super_orderline = models.Orderline.prototype;
-
-models.load_models({
-        model: 'product.multi.uom.price',
-        fields: ['uom_id','product_id','price'],
-        loaded: function(self,uomPrice){
-		self.product_uom_price = {};
-		if(uomPrice.length){
-			_.each(uomPrice, function(unit){
-				if (!self.product_uom_price[unit.product_id[0]]){
-					self.product_uom_price[unit.product_id[0]] = {};
-					self.product_uom_price[unit.product_id[0]].uom_id = {};
-				}
-				self.product_uom_price[unit.product_id[0]].uom_id[unit.uom_id[0]] = {
-					id	: unit.uom_id[0],
-					name	: unit.uom_id[1],
-					price	: unit.price,
-				};
-			});
-		}
-        },
+patch(Order.prototype, {
+    set_orderline_options(orderline, options) {
+        super.set_orderline_options(...arguments);
+        if (options.product_uom_id !== undefined) {
+            orderline.product_uom_id = options.product_uom_id;
+        }
+    }
 });
 
+patch(Orderline.prototype, {
+    setup(_defaultObj, options) {
+        super.setup(...arguments);
+        // Estandarizamos a formato [id, name]
+        if (!this.product_uom_id) {
+            const uom = this.product.uom_id;
+            this.product_uom_id = Array.isArray(uom) ? uom : [uom[0], uom[1]];
+        }
+    },
 
-models.Orderline = models.Orderline.extend({
-        initialize: function(attr, options) {
-                _super_orderline.initialize.call(this,attr,options);
-		this.product_uom_id = this.product_uom_id || this.product.uom_id;
-        },
-        export_as_JSON: function(){
-                var json = _super_orderline.export_as_JSON.call(this);
-                json.product_uom_id = this.product_uom_id[0];
-                return json;
-        },
-        init_from_JSON: function(json){
-                _super_orderline.init_from_JSON.apply(this,arguments);
-                this.product_uom_id = {
-                        0 : this.pos.units_by_id[json.product_uom_id].id,
-                        1 : this.pos.units_by_id[json.product_uom_id].name			
-		};
-        },
-        set_uom: function(uom_id){
-                this.product_uom_id = uom_id;
-                this.trigger('change',this);
-        },
-	get_unit: function() {
-		if (this.product_uom_id){
-			var unit_id = this.product_uom_id;
-			if(!unit_id){
-				return undefined;
-			}
-			unit_id = unit_id[0];
-			if(!this.pos){
-				return undefined;
-			}
-			return this.pos.units_by_id[unit_id];
-		}
-		return this.product.get_unit();
-	},
+    export_as_JSON() {
+        const json = super.export_as_JSON(...arguments);
+        if (this.product_uom_id) {
+            json.product_uom_id = Array.isArray(this.product_uom_id)
+                ? this.product_uom_id[0]
+                : this.product_uom_id.id || this.product_uom_id[0];
+        }
+        return json;
+    },
+
+    init_from_JSON(json) {
+        super.init_from_JSON(...arguments);
+        if (json.product_uom_id && this.pos.units_by_id[json.product_uom_id]) {
+            const uom = this.pos.units_by_id[json.product_uom_id];
+            this.product_uom_id = [uom.id, uom.name];
+        } else {
+            this.product_uom_id = this.product.uom_id;
+        }
+    },
+
+    set_uom(uom_id) {
+        if (Array.isArray(uom_id)) {
+            this.product_uom_id = uom_id;
+        } else if (typeof uom_id === 'object' && uom_id !== null) {
+            this.product_uom_id = [uom_id[0] || uom_id.id, uom_id[1] || uom_id.name];
+        } else {
+            this.product_uom_id = [uom_id, ''];
+        }
+    },
+
+    get_unit() {
+        if (this.product_uom_id) {
+            let unit_id = Array.isArray(this.product_uom_id) ? this.product_uom_id[0] : this.product_uom_id.id;
+            if (!unit_id || !this.pos) {
+                return undefined;
+            }
+            return this.pos.units_by_id[unit_id];
+        }
+        return this.product.get_unit();
+    }
 });
 
+patch(PosStore.prototype, {
+    async _processData(loadedData) {
+        await super._processData(...arguments);
+        this.product_uom_price = loadedData['product.multi.uom.price'] || {};
+    }
 });
-

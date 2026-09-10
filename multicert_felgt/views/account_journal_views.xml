@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="multicert_felgt.multicert_felgt_account_journal_form_view_inherit" model="ir.ui.view">
+        <field name="name">multicert_felgt.multicert_felgt_account_journal_form_view_inherit</field>
+        <field name="active">True</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.view_account_journal_form"/>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='advanced_settings']" position="after">
+                <page string="Configuración FEL Guatemala" invisible="type not in (('sale','purchase')) or country_code != 'GT'">
+                    <group>
+                        <group sting="Datos FEL GT">
+                            <field name="fel_gt_is_receipt_journal"/>
+                            <field readonly="1" name="fel_gt_certifier"/>
+                            <field name="fel_gt_active"/>
+                            <field name="fel_gt_discount_in_price"/>
+                            <div class="text-muted" colspan="2" invisible="not fel_gt_discount_in_price">
+                                Se recomienda colocar 6 decimales a enviar a FEL y en la precisión decimal del sistema.
+                            </div>
+                        </group>
+                        <group sting="Datos de facturación FEL GT">
+                            <field name="fel_gt_establishment_code"/>
+                            <field name="fel_gt_commercial_name"/>
+                            <field name="fel_gt_address"/>
+                            <field name="fel_gt_zip_code"/>
+                            <field name="fel_gt_department"/>
+                            <field name="fel_gt_township"/>
+                        </group>
+                        <group sting="Frases de facturación FEL GTFEL GT">
+                            <field name="fel_gt_phrases" widget="many2many_tags"/>
+                        </group>
+                        <group string="Logo Factura FEL GT">
+                            <field name="fel_gt_custom_logo"/>
+                            <field name="fel_gt_invoice_custom_logo" invisible="fel_gt_custom_logo == False"/>
+                        </group>
+                        <group string="Contingencia FEL GT">
+                            <field name="fel_gt_has_contingency"/>
+                            <field name="fel_gt_contingency_start_range" min="100000000" max="999999999"/>
+                            <field name="fel_gt_contingency_end_range" min="100000000" max="999999999"/>
+                            <field name="fel_gt_contingency_actual_number" min="100000000" max="999999999"/>
+                            <div class="text-muted" colspan="2">
+                                El número de contingencia debe ser único en el rango entre 100000000 al 999999999 (9 Dígitos)
+                            </div>
+                        </group>
+                        <group string="Adendas FEL GT">
+                            <field name="fel_gt_addendum_internal_serie" widget="boolean_toggle"/>
+                            <field name="fel_gt_addendum_internal_number" widget="boolean_toggle"/>
+                            <field name="fel_gt_addendum_partner_ref" widget="boolean_toggle"/>
+                            <field name="fel_gt_addendum_credit" widget="boolean_toggle"/>
+                            <field name="fel_gt_addendum_order" widget="boolean_toggle"/>
+                            <field name="fel_gt_addendum_comercial" widget="boolean_toggle"/>
+                            <field name="fel_gt_addendum_payment_date" widget="boolean_toggle"/>
+                            <field name="fel_gt_addendum_currency_rate" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+    
+</odoo>

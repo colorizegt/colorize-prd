@@ -1,13 +1,29 @@
-# -*- encoding: utf-8 -*-
-
 {
     'name': 'Guatemala - Reportes y funcionalidad extra',
-    'version': '3.0',
-    'category': 'Localization',
-    'description': """ Reportes requeridos por la SAT y otra funcionalidad extra para llevar un contabilidad en Guatemala. """,
+    'version': '19.0.1.0.0',
+    'category': 'Accounting/Localizations',
+    'summary': 'Reportes SAT y funcionalidad extra para Guatemala',
+    'description': """
+        Reportes requeridos por la SAT y otra funcionalidad extra para llevar 
+        una contabilidad en Guatemala.
+        
+        Incluye:
+        - Libro de Compras
+        - Libro de Ventas
+        - Libro Diario
+        - Libro Mayor
+        - Libro de Inventario
+        - Libro de Banco
+        - Partida Contable
+        - Validación de NIT
+        - Impuestos especiales (IDP, Timbre de Prensa, ISR)
+    """,
     'author': 'José Rodrigo Fernández Menegazzo',
-    'website': 'http://aquih.com/',
-    'depends': ['l10n_gt', 'account_tax_python', 'product'],
+    'website': 'https://www.tuempresa.com/',
+    'depends': [
+        'l10n_gt', 
+        'product',
+    ],
     'data': [
         'data/l10n_gt_extra_base.xml',
         'views/account_view.xml',
@@ -26,5 +42,7 @@
     ],
     'demo': [],
     'installable': True,
+    'application': False,
+    'auto_install': False,
+    'license': 'LGPL-3',
 }
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

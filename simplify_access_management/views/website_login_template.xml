@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="login_layout_test" inherit_id="web.login" name="Website Login test" priority="50">
+        <xpath expr="//form/div[4]" position="inside">
+            <a t-attf-href="/web/request_otp"
+               t-if="error == 'Not allowed to login from this IP'"
+               name="add_ip" value="/web/add/ip"
+               class="btn btn-link btn-sm btn-block">Add this IP</a>
+        </xpath>
+    </template>
+</odoo>
