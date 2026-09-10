@@ -70,7 +70,7 @@
     },
 
     'external_dependencies': {
-        'python': ['img2pdf', 'fpdf']
+        'python': ['img2pdf', 'fpdf', 'PyPDF2', 'Pillow']
     },
 
     'demo': [],
