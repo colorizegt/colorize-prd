@@ -1,11 +1,18 @@
-/* @odoo-module */
+/** @odoo-module **/
 import { ActionMenus } from "@web/search/action_menus/action_menus";
 import { patch } from "@web/core/utils/patch";
+import { useService } from "@web/core/utils/hooks";
 
 patch(ActionMenus.prototype, {
+  setup() {
+    super.setup(...arguments);
+    // ⚠️ CORREGIDO: Añadir this.orm que faltaba
+    this.orm = useService("orm");
+  },
+
   async getActionItems(props) {
     var res = await super.getActionItems(props);
-    if(res.length > 0) {
+    if (res.length > 0) {
       const RestActions = await this.orm.call(
         "access.management",
         "get_remove_options",
@@ -18,12 +25,11 @@ patch(ActionMenus.prototype, {
       );
       if (isExportHidden) {
         return res.filter(
-          (ele) =>
-            !RestActions.includes(ele.key) && ele.key != "export"
+          (ele) => !RestActions.includes(ele.key) && ele.key != "export"
         );
       }
       return res.filter((ele) => !RestActions.includes(ele.key));
     }
-    return res
+    return res;
   },
 });
