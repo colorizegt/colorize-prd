@@ -251,7 +251,7 @@
 
     },
 	
-    'depends': ['web', 'advanced_web_domain_widget'],
+    'depends': ['web', ],
     'post_init_hook': 'post_install_action_dup_hook',
     'application': True,
     'installable': True,
