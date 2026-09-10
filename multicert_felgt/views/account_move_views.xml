@@ -48,7 +48,6 @@
             </field>
             <xpath expr="//page[@id='other_tab']" position="after">
                 <page string="FEL" invisible="move_type not in ('in_invoice','out_invoice','out_refund') or not fel_gt_active" readonly="state in ('posted','cancel')">
-                    <form>
                         <group>
                             <group string="Datos Facturación" invisible="fel_gt_state != 'certified'">
                                 <field name="fel_gt_dte_number" readonly="1" invisible="not fel_gt_dte_number"/>
@@ -83,9 +82,7 @@
                                 <field invisible="1" name="fel_gt_is_foreign"/>
                                 <field invisible="not fel_gt_enable_cancel_bypass" readonly="state != 'draft'" name="fel_gt_enable_cancel_bypass"/>
                             </group>
-                            
                         </group>
-                    </form>
                 </page>
             </xpath>
             <xpath expr="//field[@name='invoice_incoterm_id']" position="attributes">
