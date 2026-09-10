@@ -39,7 +39,7 @@ class ReportController(report.ReportController):
             g4s_pdf = report.with_context(**context)._render_g4s_pdf(docids)
             httpheaders = [
                 ("Content-Type","application/pdf"),
-                ("Content-Length", len(g4s_pdf)),
+                ("Content-Length", str(len(g4s_pdf))),
             ]
             return request.make_response(g4s_pdf, headers=httpheaders)
         return super(ReportController, self).report_routes(reportname, docids, converter, **data)
