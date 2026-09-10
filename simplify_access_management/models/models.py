@@ -313,4 +313,84 @@ class BaseModel(models.AbstractModel):
             ], limit=1)
 
             if access_management_id and access_management_id.is_apply_on_without_company:
-                for div in arch.xpath
+                for div in arch.xpath("//div[@class='oe_chatter']"):
+                    div.getparent().remove(div)
+            elif access_management_id and self.env.company in access_management_id.company_ids:
+                for div in arch.xpath("//div[@class='oe_chatter']"):
+                    div.getparent().remove(div)
+            else:
+                hide_chatter_id = self.env['hide.chatter'].sudo().search([
+                    ('access_management_id.active', '=', True),
+                    ('access_management_id.user_ids', 'in', self.env.user.id),
+                    ('model_id.model', '=', self._name),
+                    ('hide_chatter', '=', True)
+                ], limit=1)
+
+                if hide_chatter_id and hide_chatter_id.access_management_id.is_apply_on_without_company:
+                    for chatter_path in arch.xpath("//div[@class='oe_chatter']"):
+                        chatter_path.getparent().remove(chatter_path)
+                elif hide_chatter_id and self.env.company in hide_chatter_id.access_management_id.company_ids:
+                    for chatter_path in arch.xpath("//div[@class='oe_chatter']"):
+                        chatter_path.getparent().remove(chatter_path)
+
+        # Odoo 19: 'tree' -> 'list'
+        if view_type in ['kanban', 'list']:
+            restrict_import = access_management_obj.sudo().search([
+                ('active', '=', True),
+                ('user_ids', 'in', self.env.user.id),
+                ('hide_import', '=', True)
+            ], limit=1)
+            restrict_import = restrict_import.filtered(
+                lambda x: x.is_apply_on_without_company or self.env.company.id in x.company_ids.ids
+            )
+
+            if access_model_recs.filtered(lambda x: x.restrict_import) or restrict_import:
+                arch.attrib.update({'import': 'false'})
+
+            restrict_export = access_management_obj.sudo().search([
+                ('active', '=', True),
+                ('user_ids', 'in', self.env.user.id),
+                ('hide_export', '=', True)
+            ], limit=1)
+            restrict_export = restrict_export.filtered(
+                lambda x: x.is_apply_on_without_company or self.env.company.id in x.company_ids.ids
+            )
+
+            if access_model_recs.filtered(lambda x: x.restrict_export) or restrict_export:
+                arch.attrib.update({'export_xlsx': 'false'})
+
+        if readonly_access_id:
+            if view_type in ['form', 'list', 'kanban']:
+                arch.attrib.update({'create': 'false', 'delete': 'false', 'edit': 'false'})
+        else:
+            if access_model_recs:
+                delete = 'true'
+                edit = 'true'
+                create = 'true'
+                for access_model in access_model_recs:
+                    if access_model.restrict_create:
+                        create = 'false'
+                    if access_model.restrict_edit:
+                        edit = 'false'
+                    if access_model.restrict_delete:
+                        delete = 'false'
+
+                if view_type in ['form', 'list', 'kanban']:
+                    arch.attrib.update({'create': create, 'delete': delete, 'edit': edit})
+
+            if access_recs:
+                delete = 'false'
+                edit = 'false'
+                create = 'false'
+                for access_rec in access_recs:
+                    if access_rec.create_right:
+                        create = 'true'
+                    if access_rec.write_right:
+                        edit = 'true'
+                    if access_rec.delete_right:
+                        delete = 'true'
+
+                if view_type in ['form', 'list', 'kanban']:
+                    arch.attrib.update({'create': create, 'delete': delete, 'edit': edit})
+
+        return arch, view
