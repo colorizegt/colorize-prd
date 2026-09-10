@@ -273,3 +273,41 @@ class AccessManagement(models.Model):
                         hidden_fields.append(field.name)
             return hidden_fields
         return []
+
+@api.model
+def is_custom_filter_and_group_available(self, empty_arg, model_name):
+    """
+    Verifica si el usuario tiene permiso para usar filtros y grupos personalizados.
+    
+    :param empty_arg: Argumento vacío (por compatibilidad con JS)
+    :param model_name: Nombre del modelo
+    :return: dict con {'filter': bool, 'group': bool}
+    """
+    remove_custom_filter = False
+    remove_custom_group = False
+    
+    if not model_name:
+        return {'filter': False, 'group': False}
+    
+    # Buscar reglas de tipo "hide_filters_groups" para este modelo
+    hide_filters = self.env['hide.filters.groups'].sudo().search([
+        ('model_id.model', '=', model_name),
+        ('access_management_id.active', '=', True),
+        ('access_management_id.user_ids', 'in', self.env.user.id),
+    ])
+    hide_filters -= hide_filters.filtered(
+        lambda x: not x.access_management_id.is_apply_on_without_company
+                  and self.env.company.id not in x.access_management_id.company_ids.ids
+    )
+    
+    # Si hay alguna regla que oculta TODOS los filtros/grupos, activar el flag
+    for hide_filter in hide_filters:
+        if hide_filter.filters_store_model_nodes_ids:
+            remove_custom_filter = True
+        if hide_filter.groups_store_model_nodes_ids:
+            remove_custom_group = True
+    
+    return {
+        'filter': remove_custom_filter,
+        'group': remove_custom_group,
+    }
