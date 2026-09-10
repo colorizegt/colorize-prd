@@ -1,36 +1,37 @@
 from odoo import fields, models, api, _
-from odoo.tools.translate import TranslationModuleReader
 from lxml import etree
 
 
-class hide_view_nodes(models.Model):
+class HideViewNodes(models.Model):
     _name = 'hide.view.nodes'
     _description = 'Hide View Nodes'
 
-    model_id = fields.Many2one(
-        'ir.model', string='Model', index=True, required=True, ondelete='cascade')
-
+    model_id = fields.Many2one('ir.model', string='Model', index=True, required=True, ondelete='cascade')
     model_name = fields.Char(string='Model Name', related='model_id.model', readonly=True, store=True)
 
-    btn_store_model_nodes_ids = fields.Many2many('store.model.nodes', 'btn_hide_view_nodes_store_model_nodes_rel',
-                                                 'hide_id', 'store_id', string='Hide Button',
-                                                 domain="[('node_option','=','button')]",
-                                                 help="The Buttons are added on list will be hidden in selected model from the defined users.")
-    page_store_model_nodes_ids = fields.Many2many('store.model.nodes', 'page_hide_view_nodes_store_model_nodes_rel',
-                                                  'hide_id', 'store_id', string='Hide Tab/Page',
-                                                  domain="[('node_option','=','page')]",
-                                                  help="The Tabs(pages) are added on list will be hidden in selected model from the defined users.")
-    link_store_model_nodes_ids = fields.Many2many('store.model.nodes', 'link_hide_view_nodes_store_model_nodes_rel',
-                                                  'hide_id', 'store_id', string='Hide Kanban Link',
-                                                  domain="[('node_option','=','link')]",
-                                                  help="The Kanban view action are added on list will be hidden in selected model from the defined users.")
+    btn_store_model_nodes_ids = fields.Many2many(
+        'store.model.nodes', 'btn_hide_view_nodes_store_model_nodes_rel',
+        'hide_id', 'store_id', string='Hide Button',
+        domain="[('node_option','=','button')]",
+        help="..."
+    )
+    page_store_model_nodes_ids = fields.Many2many(
+        'store.model.nodes', 'page_hide_view_nodes_store_model_nodes_rel',
+        'hide_id', 'store_id', string='Hide Tab/Page',
+        domain="[('node_option','=','page')]",
+        help="..."
+    )
+    link_store_model_nodes_ids = fields.Many2many(
+        'store.model.nodes', 'link_hide_view_nodes_store_model_nodes_rel',
+        'hide_id', 'store_id', string='Hide Kanban Link',
+        domain="[('node_option','=','link')]",
+        help="..."
+    )
 
     access_management_id = fields.Many2one('access.management', 'Access Management')
 
     def _store_btn_data(self, btn, smart_button=False, smart_button_string=False):
-        # string_value is used in case of kanban view button store, 
-        string_value = 'string_value' in self._context.keys() and self._context['string_value'] or False
-
+        string_value = self._context.get('string_value', False)
         store_model_button_obj = self.env['store.model.nodes']
         name = btn.get('string') or string_value
         if smart_button:
@@ -53,8 +54,7 @@ class hide_view_nodes(models.Model):
             for sp in span_list:
                 if sp.text:
                     name = name + ' ' + sp.text
-            name = name.strip()
-            return name
+            return name.strip()
 
         for btn in btn_list:
             name = ''
@@ -74,11 +74,15 @@ class hide_view_nodes(models.Model):
             if not name:
                 try:
                     name = btn.get('string')
-                except:
+                except Exception:
                     pass
             if name and (type == 'object' or type == 'action'):
-                domain = [('button_type', '=', btn.get('type')), ('attribute_string', '=', name),
-                          ('model_id', '=', self.model_id.id), ('node_option', '=', 'button')]
+                domain = [
+                    ('button_type', '=', btn.get('type')),
+                    ('attribute_string', '=', name),
+                    ('model_id', '=', self.model_id.id),
+                    ('node_option', '=', 'button')
+                ]
                 if type == 'object':
                     domain += [('attribute_name', '=', btn.get('name'))]
                 if type == 'action':
@@ -96,21 +100,29 @@ class hide_view_nodes(models.Model):
         view_obj = self.env['ir.ui.view']
 
         if self.model_id and self.model_name:
-
-            view_list = ['form', 'tree', 'kanban']
+            # Odoo 19: 'tree' -> 'list'
+            view_list = ['form', 'list', 'kanban']
             for view in view_list:
                 for views in view_obj.search([('model', '=', self.model_name), ('type', '=', view)]):
-                    res = self.env[self.model_name].sudo().get_view(view_id=views.id, view_type=view)
-                    # res = self.env[self.model_name].sudo().fields_view_get(view_id=views.id,view_type=view)
-                    doc = etree.XML(res['arch'])
+                    # Odoo 19: usar get_view en lugar de fields_view_get
+                    try:
+                        res = self.env[self.model_name].sudo().get_view(view_id=views.id, view_type=view)
+                        doc = etree.XML(res['arch'])
+                    except Exception:
+                        continue
 
                     object_link = doc.xpath("//a")
                     for btn in object_link:
-                        if btn.text and '\n' not in btn.text and 'type' in btn.attrib.keys() and btn.attrib[
-                            'type'] and 'name' in btn.attrib.keys() and btn.attrib['name']:
-                            domain = [('button_type', '=', btn.get('type')), ('attribute_string', '=', btn.text),
-                                      ('attribute_name', '=', btn.get('name')), ('model_id', '=', self.model_id.id),
-                                      ('node_option', '=', 'link')]
+                        if (btn.text and '\n' not in btn.text
+                            and 'type' in btn.attrib.keys() and btn.attrib['type']
+                            and 'name' in btn.attrib.keys() and btn.attrib['name']):
+                            domain = [
+                                ('button_type', '=', btn.get('type')),
+                                ('attribute_string', '=', btn.text),
+                                ('attribute_name', '=', btn.get('name')),
+                                ('model_id', '=', self.model_id.id),
+                                ('node_option', '=', 'link')
+                            ]
                             if not store_model_nodes_obj.search(domain):
                                 store_model_nodes_obj.create({
                                     'model_id': self.model_id.id,
@@ -127,7 +139,7 @@ class hide_view_nodes(models.Model):
                         if view == 'kanban' and not string_value:
                             try:
                                 string_value = btn.text if not btn.text.startswith('\n') else False
-                            except:
+                            except Exception:
                                 pass
 
                         if not string_value:
@@ -139,9 +151,13 @@ class hide_view_nodes(models.Model):
                                     string_value += " " + f.text
 
                         if btn.get('name') and string_value:
-                            domain = [('button_type', '=', btn.get('type')), ('attribute_string', '=', string_value),
-                                      ('attribute_name', '=', btn.get('name')), ('model_id', '=', self.model_id.id),
-                                      ('node_option', '=', 'button')]
+                            domain = [
+                                ('button_type', '=', btn.get('type')),
+                                ('attribute_string', '=', string_value),
+                                ('attribute_name', '=', btn.get('name')),
+                                ('model_id', '=', self.model_id.id),
+                                ('node_option', '=', 'button')
+                            ]
                             if not store_model_nodes_obj.search(domain):
                                 self.with_context(string_value=string_value)._store_btn_data(btn)
 
@@ -151,17 +167,20 @@ class hide_view_nodes(models.Model):
                         if view == 'kanban' and not string_value:
                             try:
                                 string_value = btn.text if not btn.text.startswith('\n') else False
-                            except:
+                            except Exception:
                                 pass
                         if btn.get('name') and string_value:
-                            domain = [('button_type', '=', btn.get('type')), ('attribute_string', '=', string_value),
-                                      ('attribute_name', '=', btn.get('name')), ('model_id', '=', self.model_id.id),
-                                      ('node_option', '=', 'button')]
+                            domain = [
+                                ('button_type', '=', btn.get('type')),
+                                ('attribute_string', '=', string_value),
+                                ('attribute_name', '=', btn.get('name')),
+                                ('model_id', '=', self.model_id.id),
+                                ('node_option', '=', 'button')
+                            ]
                             if not store_model_nodes_obj.search(domain):
                                 self.with_context(string_value=string_value)._store_btn_data(btn)
 
                     if view == 'form':
-                        ## Smart Buttons Extraction
                         smt_button_division = doc.xpath("//div[@class='oe_button_box']")
                         if smt_button_division:
                             smt_button_division = etree.tostring(smt_button_division[0])
@@ -173,13 +192,15 @@ class hide_view_nodes(models.Model):
                             smt_action_button = smt_button_division.xpath("//button[@type='action']")
                             self._get_smart_btn_string(smt_action_button, type='action')
 
-                        ## Tab Extraction
                         page_list = doc.xpath("//page")
                         if page_list:
                             for page in page_list:
                                 if page.get('string'):
-                                    domain = [('attribute_string', '=', page.get('string')),
-                                              ('model_id', '=', self.model_id.id), ('node_option', '=', 'page')]
+                                    domain = [
+                                        ('attribute_string', '=', page.get('string')),
+                                        ('model_id', '=', self.model_id.id),
+                                        ('node_option', '=', 'page')
+                                    ]
                                     if page.get('name'):
                                         domain += [('attribute_name', '=', page.get('name'))]
                                     store_model_nodes_id = store_model_nodes_obj.search(domain, limit=1)
@@ -191,11 +212,15 @@ class hide_view_nodes(models.Model):
                                             'node_option': 'page',
                                             'lang_code': self.env.lang,
                                         })
+
                         if self.model_name == 'res.config.settings':
                             for setting_page in doc.xpath("//app"):
                                 if setting_page.get('string'):
-                                    domain = [('attribute_string', '=', setting_page.get('string')),
-                                              ('model_id', '=', self.model_id.id), ('node_option', '=', 'page')]
+                                    domain = [
+                                        ('attribute_string', '=', setting_page.get('string')),
+                                        ('model_id', '=', self.model_id.id),
+                                        ('node_option', '=', 'page')
+                                    ]
                                     if setting_page.get('name'):
                                         domain += [('attribute_name', '=', setting_page.get('name'))]
                                     store_model_nodes_id = store_model_nodes_obj.search(domain, limit=1)
@@ -209,27 +234,31 @@ class hide_view_nodes(models.Model):
                                         })
 
 
-class store_model_nodes(models.Model):
+class StoreModelNodes(models.Model):
     _name = 'store.model.nodes'
     _description = 'Store Model Nodes'
     _rec_name = 'attribute_string'
 
     model_id = fields.Many2one('ir.model', string='Model', index=True, ondelete='cascade', required=True)
-    node_option = fields.Selection([('button', 'Button'), ('page', 'Page'), ('link', 'Link')], string="Node Option",
-                                   required=True)
+    node_option = fields.Selection(
+        [('button', 'Button'), ('page', 'Page'), ('link', 'Link')],
+        string="Node Option", required=True
+    )
     attribute_name = fields.Char('Attribute Name')
     attribute_string = fields.Char('Attribute String', required=True, translate=True)
     lang_code = fields.Char("Language Code")
-    button_type = fields.Selection([('object', 'Object'), ('action', 'Action')], string="Button Type")
+    button_type = fields.Selection(
+        [('object', 'Object'), ('action', 'Action')],
+        string="Button Type"
+    )
     is_smart_button = fields.Boolean('Smart Button')
 
-    def name_get(self):
-        result = []
+    @api.depends('attribute_string', 'attribute_name', 'is_smart_button', 'node_option')
+    def _compute_display_name(self):
         for rec in self:
             name = rec.attribute_string
             if rec.attribute_name:
                 name = name + ' (' + rec.attribute_name + ')'
                 if rec.is_smart_button and rec.node_option == 'button':
                     name = name + ' (Smart Button)'
-            result.append((rec.id, name))
-        return result
+            rec.display_name = name
