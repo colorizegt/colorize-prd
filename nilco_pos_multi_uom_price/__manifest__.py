@@ -3,7 +3,7 @@
     'name': "POS Multi UoM Price",
     'summary': 'POS Price Per Unit of Measure',
     'category': 'Point of Sale',
-    'version': '17.0.1.0.1',
+    'version': '19.0.1.0.1',
     'license': "AGPL-3",
     'description': """
          Sell product with multi UoMs in POS.
