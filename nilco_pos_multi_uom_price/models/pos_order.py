@@ -17,8 +17,17 @@ class PosOrderLine(models.Model):
     def _compute_margin(self):
         for line in self:
             line.margin = line.price_subtotal - line.total_cost
-            if line.product_uom_id and line.product_uom_id.ratio:
-                line.margin = line.margin / line.product_uom_id.ratio
+            # En Odoo 19, el factor de conversión se obtiene de otra manera
+            if line.product_uom_id and line.product_uom_id != line.product_id.uom_id:
+                # Usar el método de conversión de Odoo 19
+                try:
+                    converted_qty = line.product_uom_id._compute_quantity(
+                        1, line.product_id.uom_id
+                    )
+                    if converted_qty:
+                        line.margin = line.margin / converted_qty
+                except Exception:
+                    pass
             line.margin_percent = (
                 not float_is_zero(line.price_subtotal, precision_rounding=line.currency_id.rounding)
                 and line.margin / line.price_subtotal
