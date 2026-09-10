@@ -18,7 +18,7 @@
     'author': 'Rodrigo Contreras',
     'website': "https://mrdc.tech",
     'category': 'Point of Sale',
-    'version': '19.0.1.0.1',
+    'version': '19.0.1.0.0',
 
     'depends': ['base', 'point_of_sale', 'account_tax_python', 'multicert_felgt'],
 
