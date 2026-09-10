@@ -1,50 +1,64 @@
 /** @odoo-module */
 import { ProductScreen } from "@point_of_sale/app/screens/product_screen/product_screen";
 import { Component } from "@odoo/owl";
-import { useListener } from "@web/core/utils/hooks";
 import { SelectionPopup } from "@point_of_sale/app/utils/input_popups/selection_popup";
+
 export class UOMButton extends Component {
     static template = "point_of_sale.UOMButton";
+
     setup() {
-           super.setup();
-       }
+        super.setup();
+    }
+
     get selectedOrderline() {
-	       return this.env.services.pos.get_order().get_selected_orderline();
-       }
+        return this.env.services.pos.get_order()?.get_selected_orderline();
+    }
+
     async onClick() {
-	       let line = this.selectedOrderline;
-	       if (line) {
-	         let pupList = Object.keys(line.pos.product_uom_price);
-	         let product = line.product.product_tmpl_id;
-	         if (line && pupList.find(element => element === product.toString())) {
-		       const uomList = [ ];
-		       let uomPrices = line.pos.product_uom_price[product].uom_id;
-		       if (uomPrices) {
-		       	Object.values(uomPrices).forEach(uomPrice => {
-				       uomList.push({
-					       id:	uomPrice.id,
-					       label:	uomPrice.name,
-					       isSelected: true,
-					       item:	uomPrice,
-				       });
-				       });
-		       }
-		       const { confirmed, payload: selectedUOM } = await this.env.services.popup.add(
-			            SelectionPopup, {
-			       title: 'UOM',
-			       list: uomList,
-		       });
-		       if (confirmed) {
-			      line.set_uom({0:selectedUOM.id,1:selectedUOM.name});
-			      line.price_manually_set = true;
-			      line.set_unit_price(selectedUOM.price);
+        const line = this.selectedOrderline;
+        if (!line) {
+            return;
+        }
 
-		       }
-	         }
-	       }
-       }	   
-   }
+        const pos = this.env.services.pos;
+        const productTmplId = line.product.product_tmpl_id;
+        const productUomPrices = pos.product_uom_price || {};
 
+        // Las claves del objeto son strings, así que comparamos con String()
+        const productKey = Object.keys(productUomPrices).find(
+            key => key === String(productTmplId)
+        );
+
+        if (!productKey) {
+            return;
+        }
+
+        const uomPrices = productUomPrices[productKey]?.uom_id;
+        if (!uomPrices) {
+            return;
+        }
+
+        const uomList = Object.values(uomPrices).map(uomPrice => ({
+            id: uomPrice.id,
+            label: uomPrice.name,
+            isSelected: line.product_uom_id && line.product_uom_id[0] === uomPrice.id,
+            item: uomPrice,
+        }));
+
+        const { confirmed, payload: selectedUOM } = await this.env.services.popup.add(
+            SelectionPopup,
+            {
+                title: 'UOM',
+                list: uomList,
+            }
+        );
+
+        if (confirmed && selectedUOM) {
+            line.set_uom([selectedUOM.id, selectedUOM.name]);
+            line.set_unit_price(selectedUOM.price);
+        }
+    }
+}
 
 ProductScreen.addControlButton({
     component: UOMButton,
@@ -52,4 +66,3 @@ ProductScreen.addControlButton({
         return true;
     },
 });
-
