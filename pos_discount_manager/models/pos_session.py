@@ -3,19 +3,10 @@
 #
 #    Cybrosys Technologies Pvt. Ltd.
 #
-#    Copyright (C) 2024-TODAY Cybrosys Technologies(<https://www.cybrosys.com>)
+#    Copyright (C) 2025-TODAY Cybrosys Technologies(<https://www.cybrosys.com>)
 #    Author:Anjhana A K(<https://www.cybrosys.com>)
 #    You can modify it under the terms of the GNU AFFERO
 #    GENERAL PUBLIC LICENSE (AGPL v3), Version 3.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU AFFERO GENERAL PUBLIC LICENSE (AGPL v3) for more details.
-#
-#    You should have received a copy of the GNU AFFERO GENERAL PUBLIC LICENSE
-#    (AGPL v3) along with this program.
-#    If not, see <http://www.gnu.org/licenses/>.
 #
 #############################################################################
 from odoo import models
@@ -25,26 +16,14 @@ class PosSession(models.Model):
     """Load employee discount authorization data into the POS."""
     _inherit = "pos.session"
 
-    def _pos_ui_models_to_load(self):
-        result = super()._pos_ui_models_to_load()
-        result += ['hr.employee']
-        return result
-
-    def _loader_params_hr_employee(self):
-        """Load employee discount information into POS."""
-        result = super()._loader_params_hr_employee()
-
-        result['search_params']['fields'].extend([
-            'limited_discount',
-            'discount_manager',
-        ])
-
-        domain = result['search_params']['domain']
-
-        result['search_params']['domain'] = [
-            '|',
-            ('discount_manager', '=', True),
-            *domain,
-        ]
-
+    def _load_pos_data_models(self, config):
+        """Odoo 19: Define qué modelos cargar en el POS.
+        
+        En Odoo 19, la carga de datos se delega a los modelos individuales
+        que implementan pos.load.mixin. Aquí solo declaramos que queremos
+        cargar el modelo hr.employee.
+        """
+        result = super()._load_pos_data_models(config)
+        if 'hr.employee' not in result:
+            result.append('hr.employee')
         return result
