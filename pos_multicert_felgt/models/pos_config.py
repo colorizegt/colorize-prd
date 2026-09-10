@@ -6,7 +6,7 @@ from odoo import api, fields, models
 
 class PosConfig(models.Model):
     _inherit = "pos.config"
-    
+
     fel_gt_small_taxpayer_withholding = fields.Boolean(string="Pequeño Contribuyente", related="company_id.fel_gt_small_taxpayer_withholding")
     fel_gt_commercial_name = fields.Char(string="Nombre comercial", related="invoice_journal_id.fel_gt_commercial_name")
     fel_gt_address = fields.Char(string="Dirección de facturación", related="invoice_journal_id.fel_gt_address")
@@ -43,10 +43,9 @@ class PosConfig(models.Model):
     fel_gt_allow_open_cash_d = fields.Boolean(string='Habilitar Abrir Caja Registradora')
     fel_gt_hide_product_info = fields.Boolean(string='Ocultar Información de Producto en Punto de Venta')
     fel_gt_show_stock_info = fields.Boolean(string='Mostrar Stock en Punto de Venta')
-    fel_gt_manage_stock_info = fields.Selection([('on_hand_qty', 'Cantidad en Mano'), ('available_qty', 'Cantidad Virtual'), ('both', 'Ambos')], string='Información de Stock', default='on_hand_qty')
-
-    def get_current_fel_gt_access_number(self):
-        self.ensure_one()
-        return int(self.fel_gt_contingency_actual_number)
+    fel_gt_manage_stock_info = fields.Selection(
+        [('on_hand_qty', 'Cantidad en Mano'), ('available_qty', 'Cantidad Virtual'), ('both', 'Ambos')],
+        string='Información de Stock', default='on_hand_qty'
+    )
 
     fel_gt_force_refund_payment = fields.Boolean(string='Forzar Devolución hacia Pago Directamente', default=True)
